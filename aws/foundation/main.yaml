@@ -1,0 +1,93 @@
+---
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: AWS Foundation Template
+
+
+Parameters:
+  AvailabilityZones:
+    Default: us-east-1a,us-east-1b,us-east-1c
+    Description: Comma-delimited list of availabilty zones
+    Type: CommaDelimitedList
+
+  CidrBlock:
+    Default: 10.1.0.0/16
+    Description: VPC Cidr Block
+    Type: String
+
+  Environment:
+    Default: tst
+    Description: Stack environment
+    Type: String
+
+  FoundationBucket:
+    Default: myrig.awsrig.dmacedo.foundation
+    Description: Foundation S3 Bucket
+    Type: String
+
+  ProjectName:
+    Default: awsrig
+    Description: Project name
+    Type: String
+
+  PublicFQDN:
+    Default: buildit.lab.pt
+    Description: Public Fully Qualified Domain Name
+    Type: String
+
+  Region:
+    Default: us-east-1
+    Description: Region
+    Type: String
+
+  SubnetPrivateCidrBlocks:
+    Default: "10.1.11.0/24,10.1.12.0/24,10.1.13.0/24"
+    Description: Comma-delimited list of three CIDR blocks for private subnets
+    Type: CommaDelimitedList
+
+  SubnetPublicCidrBlocks:
+    Default: "10.1.1.0/24,10.1.2.0/24,10.1.3.0/24"
+    Description: Comma-delimited list of three CIDR blocks for public subnets
+    Type: CommaDelimitedList
+
+Resources:
+  Vpc:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        AvailabilityZones: !Join [ ",", !Ref AvailabilityZones ]
+        CidrBlock: !Ref CidrBlock
+        Environment: !Ref Environment
+        FoundationStackName: !Sub ${AWS::StackName}
+        Region: !Ref Region
+        SubnetPrivateCidrBlocks: !Join [ ",", !Ref SubnetPrivateCidrBlocks ]
+        SubnetPublicCidrBlocks: !Join [ ",", !Ref SubnetPublicCidrBlocks ]
+      TemplateURL: !Sub https://s3.amazonaws.com/${FoundationBucket}/${Environment}/templates/vpc.yaml
+      TimeoutInMinutes: 60
+
+  Dns:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Environment: !Ref Environment
+        FoundationStackName: !Sub ${AWS::StackName}
+        PublicFQDN: !Ref PublicFQDN
+      TemplateURL: !Sub https://s3.amazonaws.com/${FoundationBucket}/${Environment}/templates/dns.yaml
+      TimeoutInMinutes: 60
+
+  Nat:
+    DependsOn:
+      - Vpc
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Environment: !Ref Environment
+        FoundationStackName: !Sub ${AWS::StackName}
+      TemplateURL: !Sub https://s3.amazonaws.com/${FoundationBucket}/${Environment}/templates/nat.yaml
+      TimeoutInMinutes: 60
+
+
+Outputs:
+  FoundationVpcId:
+    Description: VPC Id
+    Value: !GetAtt Vpc.Outputs.VpcId

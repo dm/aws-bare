@@ -1,0 +1,104 @@
+---
+
+Description: Application Deployment on ECS
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  AppName:
+    Default: twig
+    Description: Application name
+    Type: String
+
+  AppStackName:
+    Description: App stack name
+    Type: String
+
+  BuildArtifactsBucket:
+    Default: myrig.awsrig.dmacedo.build
+    Description: Build Artifacts S3 Bucket
+    Type: String
+
+  Environment:
+    Default: tst
+    Description: Stack environment
+    Type: String
+
+  FoundationStackName:
+    Description: Foundation stack name
+    Type: String
+
+  InfraDevBucket:
+    Default: myrig.awsrig.dmacedo.infradev
+    Description: InfraDev S3 Bucket
+    Type: String
+
+  ProjectName:
+    Default: awsrig
+    Description: Project name
+    Type: String
+
+  Region:
+    Default: us-east-1
+    Description: Region
+    Type: String
+
+  UserName:
+    Description: User FirstLastName
+    Type: String
+
+Resources:
+  CodeCommitRepo:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: !Join [ '-', [ !Ref ProjectName, !Ref UserName, !Ref AppName ] ]
+      RepositoryDescription: !Join [ ' ', [ 'Project repository for ', !Ref ProjectName ] ]
+
+  LoadBalancer:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/load-balancer.yaml
+      Parameters:
+        AppStackName: !Ref AppStackName
+        FoundationStackName: !Ref FoundationStackName
+
+  Cluster:
+    DependsOn:
+      - LoadBalancer
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/ecs-cluster.yaml
+      Parameters:
+        AppStackName: !Ref AppStackName
+        FoundationStackName: !Ref FoundationStackName
+        SourceSecurityGroup: !GetAtt LoadBalancer.Outputs.SecurityGroup
+
+  DeploymentPipeline:
+    DependsOn:
+      - Cluster
+      - LoadBalancer
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/deployment-pipeline.yaml
+      Parameters:
+        AppStackName: !Ref AppStackName
+        BuildArtifactsBucket: !Ref BuildArtifactsBucket
+        Cluster: !GetAtt Cluster.Outputs.ClusterName
+        RepositoryName: !GetAtt CodeCommitRepo.Name
+        TargetGroup: !GetAtt LoadBalancer.Outputs.TargetGroup
+
+Outputs:
+  CodeCommitRepoArn:
+    Description: Created Code Commit Repo Arn
+    Export:
+      Name: !Sub "${AppStackName}--CodeCommitRepoArn"
+    Value: !GetAtt CodeCommitRepo.Arn
+
+  CodeCommitRepoName:
+    Description: Created Code Commit Repo Name
+    Export:
+      Name: !Sub "${AppStackName}--CodeCommitRepoName"
+    Value: !GetAtt CodeCommitRepo.Name
+
+  LoadBalancerUrl:
+    Description: URL of the load balancer for the sample service.
+    Value: !GetAtt LoadBalancer.Outputs.ServiceUrl
