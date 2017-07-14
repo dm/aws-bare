@@ -58,28 +58,6 @@ Resources:
       RouteTableId:
         Fn::ImportValue: !Sub "${FoundationStackName}--RouteTablePrivateB"
 
-  ##
-  # NAT for private subnet C
-  NatEipC:
-    Type: AWS::EC2::EIP
-
-  NatC:
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId:
-        !GetAtt NatEipC.AllocationId
-      SubnetId:
-        Fn::ImportValue: !Sub "${FoundationStackName}--SubnetPublicC"
-
-  NatCRouteC:
-    Type: AWS::EC2::Route
-    Properties:
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId:
-        Ref: NatC
-      RouteTableId:
-        Fn::ImportValue: !Sub "${FoundationStackName}--RouteTablePrivateC"
-
 Outputs:
   NatEipA:
     Description: Nat EIP A
@@ -108,17 +86,3 @@ Outputs:
       Name: !Sub "${FoundationStackName}--NatEipAllocationIdB"
     Value:
       !GetAtt NatEipB.AllocationId
-
-  NatEipC:
-    Description: Nat EIP C
-    Export:
-      Name: !Sub "${FoundationStackName}--NatEipC"
-    Value:
-      Ref: NatEipC
-
-  NatEipAllocationIdC:
-    Description: Nat EIP Allocation Id C
-    Export:
-      Name: !Sub "${FoundationStackName}--NatEipAllocationIdC"
-    Value:
-      !GetAtt NatEipC.AllocationId
