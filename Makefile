@@ -163,13 +163,13 @@ upload:
 # Note that these templates will be stored in your InfraDev Project **shared** bucket:
 # myrig.${PROJECT}.${NAME_SUFFIX}.infradev/${ENV}/templates/
 upload-app:
-	@aws s3 cp --recursive aws/app/ s3://myrig.${PROJECT}.${NAME_SUFFIX}.build/${ENV}/templates/
+	@aws s3 cp --recursive aws/app/ s3://myrig.${PROJECT}.${NAME_SUFFIX}.infradev/${ENV}/templates/
 	pwd=$(shell pwd)
 	cd aws/app/ && zip templates.zip *.yaml
 	cd ${pwd}
-	@aws s3 cp aws/app/templates.zip s3://myrig.${PROJECT}.${NAME_SUFFIX}.build/${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}/templates/
+	@aws s3 cp aws/app/templates.zip s3://myrig.${PROJECT}.${NAME_SUFFIX}.infradev/${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}/templates/
 	rm -rf aws/app/templates.zip
-	@aws s3 cp aws/app/service.yaml s3://myrig.${PROJECT}.${NAME_SUFFIX}.build/${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}/templates/
+	@aws s3 cp aws/app/service.yaml s3://myrig.${PROJECT}.${NAME_SUFFIX}.infradev/${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}/templates/
 
 
 store-ubuntu-ami:
