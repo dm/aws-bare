@@ -6,7 +6,7 @@ Description: AWS Foundation Template
 
 Parameters:
   AvailabilityZones:
-    Default: us-east-1a,us-east-1b,us-east-1c
+    Default: ap-northeast-2a,ap-northeast-2c
     Description: Comma-delimited list of availabilty zones
     Type: CommaDelimitedList
 
@@ -55,7 +55,6 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        AvailabilityZones: !Join [ ",", !Ref AvailabilityZones ]
         CidrBlock: !Ref CidrBlock
         Environment: !Ref Environment
         FoundationStackName: !Sub ${AWS::StackName}
