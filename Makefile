@@ -164,7 +164,7 @@ upload:
 # myrig.${PROJECT}.${NAME_SUFFIX}.infradev/${ENV}/templates/
 upload-app:
 	@aws s3 cp --recursive aws/app/ s3://myrig.${PROJECT}.${NAME_SUFFIX}.build/${ENV}/templates/
-	pwd = $(shell pwd)
+	pwd=$(shell pwd)
 	cd aws/app/ && zip templates.zip *.yaml
 	cd ${pwd}
 	@aws s3 cp aws/app/templates.zip s3://myrig.${PROJECT}.${NAME_SUFFIX}.build/${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}/templates/
