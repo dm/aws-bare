@@ -158,7 +158,6 @@ delete-foundation:
 delete-app:
 	@if ${MAKE} .prompt-yesno message="Are you sure you wish to delete the App ${APP} Stack?"; then \
 		aws cloudformation delete-stack --region ${REGION} --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}"; \
-
 	fi
 
 ## Upload CF Templates to S3
