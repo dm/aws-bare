@@ -55,7 +55,6 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        AvailabilityZones: !Join [ ",", !Ref AvailabilityZones ]
         CidrBlock: !Ref CidrBlock
         Environment: !Ref Environment
         FoundationStackName: !Sub ${AWS::StackName}

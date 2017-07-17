@@ -31,6 +31,7 @@ destroy-deps:
 ## Creates a new CF stack
 create-foundation: upload
 	@aws cloudformation create-stack --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
+                --region ${REGION} \
 		--template-body "file://aws/foundation/main.yaml" \
 		--disable-rollback \
 		--capabilities CAPABILITY_NAMED_IAM \
@@ -52,6 +53,7 @@ create-foundation: upload
 ## Create new CF App stack
 create-app: upload-app
 	@aws cloudformation create-stack --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}" \
+                --region ${REGION} \
 		--template-body "file://aws/app/main.yaml" \
 		--capabilities CAPABILITY_NAMED_IAM \
 		--parameters \
@@ -74,6 +76,7 @@ create-app: upload-app
 ## Updates existing Foundation CF stack
 update-foundation: upload
 	@aws cloudformation update-stack --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
+                --region ${REGION} \
 		--template-body "file://aws/foundation/main.yaml" \
 		--capabilities CAPABILITY_NAMED_IAM \
 		--parameters \
@@ -95,6 +98,7 @@ update-foundation: upload
 ## Update existing App CF Stack
 update-app: upload-app
 	@aws cloudformation update-stack --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}" \
+                --region ${REGION} \
 		--template-body "file://aws/app/main.yaml" \
 		--capabilities CAPABILITY_NAMED_IAM \
 		--parameters \
@@ -116,12 +120,14 @@ update-app: upload-app
 ## Print Foundation stack's status
 status-foundation:
 	@aws cloudformation describe-stacks \
+                --region ${REGION} \
 		--stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
 		--query "Stacks[][StackStatus] | []" | jq
 
 ## Print app stack's outputs
 outputs-foundation:
 	@aws cloudformation describe-stacks \
+                --region ${REGION} \
 		--stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
 		--query "Stacks[][Outputs] | []" | jq
 
@@ -129,6 +135,7 @@ outputs-foundation:
 ## Print app stack's status
 status-app:
 	@aws cloudformation describe-stacks \
+                --region ${REGION} \
 		--stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}" \
 		--query "Stacks[][StackStatus] | []" | jq
 
@@ -136,6 +143,7 @@ status-app:
 ## Print app stack's outputs
 outputs-app:
 	@aws cloudformation describe-stacks \
+                --region ${REGION} \
 		--stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}" \
 		--query "Stacks[][Outputs] | []" | jq
 
@@ -143,13 +151,14 @@ outputs-app:
 ## Deletes the Foundation CF stack
 delete-foundation:
 	@if ${MAKE} .prompt-yesno message="Are you sure you wish to delete the Foundation Stack?"; then \
-		aws cloudformation delete-stack --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation"; \
+		aws cloudformation delete-stack --region ${REGION} --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation"; \
 	fi
 
 ## Deletes the App CF stack
 delete-app:
 	@if ${MAKE} .prompt-yesno message="Are you sure you wish to delete the App ${APP} Stack?"; then \
-		aws cloudformation delete-stack --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}"; \
+		aws cloudformation delete-stack --region ${REGION} --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}"; \
+
 	fi
 
 ## Upload CF Templates to S3
