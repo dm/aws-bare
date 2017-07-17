@@ -131,6 +131,15 @@ Resources:
                   - s3:GetObjectVersion
                   - s3:GetBucketVersioning
               - Resource:
+                  - !Sub arn:aws:s3:::${InfraDevBucket}
+                  - !Sub arn:aws:s3:::${InfraDevBucket}/*
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+              - Resource:
                   - "*"
                 Effect: Allow
                 Action:
