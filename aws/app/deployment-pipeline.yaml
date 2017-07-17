@@ -10,6 +10,9 @@ Parameters:
   BuildArtifactsBucket:
     Type: String
 
+  InfraDevBucket:
+    Type: String
+
   Cluster:
     Type: String
 
@@ -213,7 +216,7 @@ Resources:
                 - Name: Template
               RunOrder: 1
               Configuration:
-                S3Bucket: !Ref BuildArtifactsBucket
+                S3Bucket: !Ref InfraDevBucket
                 S3ObjectKey: !Sub "${AppStackName}/templates/templates.zip"
         - Name: Build
           Actions:

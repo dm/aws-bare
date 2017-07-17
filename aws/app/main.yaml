@@ -82,6 +82,7 @@ Resources:
       Parameters:
         AppStackName: !Ref AppStackName
         BuildArtifactsBucket: !Ref BuildArtifactsBucket
+        InfraDevBucket: !Ref InfraDevBucket
         Cluster: !GetAtt Cluster.Outputs.ClusterName
         RepositoryName: !GetAtt CodeCommitRepo.Name
         TargetGroup: !GetAtt LoadBalancer.Outputs.TargetGroup
