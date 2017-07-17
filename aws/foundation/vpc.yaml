@@ -101,28 +101,6 @@ Resources:
         - Key: Name
           Value: !Sub "${Environment}--SubnetPrivateB"
 
-  SubnetPublicC:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId:
-        Ref: VPC
-      AvailabilityZone: !Select [ 2, !GetAZs ]
-      CidrBlock: !Select [ 2, !Ref SubnetPublicCidrBlocks ]
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: !Sub "${Environment}--SubnetPublicC"
-
-  SubnetPrivateC:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId:
-        Ref: VPC
-      AvailabilityZone: !Select [ 2, !GetAZs ]
-      CidrBlock: !Select [ 2, !Ref SubnetPrivateCidrBlocks ]
-      Tags:
-        - Key: Name
-          Value: !Sub "${Environment}--SubnetPrivateC"
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -169,23 +147,6 @@ Resources:
       RouteTableId:
         Ref: RouteTablePrivateB
 
-  RouteTablePrivateC:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      Tags:
-        - Key: Name
-          Value: !Sub "${Environment}--RouteTablePrivateC"
-      VpcId:
-        Ref: VPC
-
-  SubnetPrivateCRouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId:
-        Ref: SubnetPrivateC
-      RouteTableId:
-        Ref: RouteTablePrivateC
-
   RouteTablePublic:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -220,14 +181,6 @@ Resources:
         Ref: RouteTablePublic
       SubnetId:
         Ref: SubnetPublicB
-
-  SubnetPublicCRouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId:
-        Ref: RouteTablePublic
-      SubnetId:
-        Ref: SubnetPublicC
 
 Outputs:
   CidrBlock:
@@ -265,13 +218,6 @@ Outputs:
     Value:
       Ref: RouteTablePrivateB
 
-  RouteTablePrivateC:
-    Description: The ID of the Private RT C
-    Export:
-      Name: !Sub "${FoundationStackName}--RouteTablePrivateC"
-    Value:
-      Ref: RouteTablePrivateC
-
   RouteTablePublic:
     Description: The ID of the Public RT
     Export:
@@ -293,19 +239,6 @@ Outputs:
     Value:
       Ref: SubnetPrivateB
 
-  SubnetPrivateC:
-    Description: The ID of the newly created Private Subnet in zone C
-    Export:
-      Name: !Sub "${FoundationStackName}--SubnetPrivateC"
-    Value:
-      Ref: SubnetPrivateC
-
-  SubnetsPrivate:
-    Description: The ID of the newly created Private Subnet in zone A
-    Export:
-      Name: !Sub "${FoundationStackName}--SubnetsPrivate"
-    Value: !Sub "${SubnetPrivateA},${SubnetPrivateB},${SubnetPrivateC}"
-
   SubnetPublicA:
     Description: The ID of the newly created Public Subnet in zone A
     Export:
@@ -320,18 +253,11 @@ Outputs:
     Value:
       Ref: SubnetPublicB
 
-  SubnetPublicC:
-    Description: The ID of the newly created Public Subnet in zone C
-    Export:
-      Name: !Sub "${FoundationStackName}--SubnetPublicC"
-    Value:
-      Ref: SubnetPublicC
-
   SubnetsPublic:
     Description: The ID of the newly created Public Subnet in zone A
     Export:
       Name: !Sub "${FoundationStackName}--SubnetsPublic"
-    Value: !Sub "${SubnetPublicA},${SubnetPublicB},${SubnetPublicC}"
+    Value: !Sub "${SubnetPublicA},${SubnetPublicB}"
 
   VpcId:
     Description: The ID of the newly created VPC

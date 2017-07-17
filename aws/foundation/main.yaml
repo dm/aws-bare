@@ -6,7 +6,7 @@ Description: AWS Foundation Template
 
 Parameters:
   AvailabilityZones:
-    Default: ap-northeast-2a,ap-northeast-2c
+    Default: us-east-1a,us-east-1b
     Description: Comma-delimited list of availabilty zones
     Type: CommaDelimitedList
 
@@ -41,13 +41,13 @@ Parameters:
     Type: String
 
   SubnetPrivateCidrBlocks:
-    Default: "10.1.11.0/24,10.1.12.0/24,10.1.13.0/24"
-    Description: Comma-delimited list of three CIDR blocks for private subnets
+    Default: "10.1.11.0/24,10.1.12.0/24"
+    Description: Comma-delimited list of two CIDR blocks for private subnets
     Type: CommaDelimitedList
 
   SubnetPublicCidrBlocks:
-    Default: "10.1.1.0/24,10.1.2.0/24,10.1.3.0/24"
-    Description: Comma-delimited list of three CIDR blocks for public subnets
+    Default: "10.1.1.0/24,10.1.2.0/24"
+    Description: Comma-delimited list of two CIDR blocks for public subnets
     Type: CommaDelimitedList
 
 Resources:
