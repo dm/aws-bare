@@ -46,40 +46,54 @@ Resources:
       TaskDefinition: !Ref TaskDefinition
       LoadBalancers:
         - ContainerName: app-deployment
-          ContainerPort: 80
+          ContainerPort: 8888
           TargetGroupArn: !Ref TargetGroup
+
+
+  TaskDefinitionServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument: |
+        {
+            "Statement": [{
+                "Effect": "Allow",
+                "Principal": { "Service": [ "ecs-tasks.amazonaws.com" ]},
+                "Action": [ "sts:AssumeRole" ]
+            }]
+        }
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              # TODO:  this needs to be tightened-up.
+              - Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*
+                Effect: Allow
+                Action:
+                  - ssm:GetParameters
+
 
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Family: !Sub ${AWS::StackName}-app-deployment
+      TaskRoleArn: !Ref TaskDefinitionServiceRole
       ContainerDefinitions:
         - Name: app-deployment
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}:${Tag}
-          EntryPoint:
-            - /usr/sbin/apache2
-            - -D
-            - FOREGROUND
+          Command:
+            - /bin/sh
+            - ./run-in-aws.sh #special bootstrapping startup that pulls secrets from SSM parameter store
           Essential: true
           Memory: 128
-          MountPoints:
-            - SourceVolume: my-vol
-              ContainerPath: /var/www/my-vol
           PortMappings:
-            - ContainerPort: 80
+            - ContainerPort: 8888
+              HostPort: 0
           Environment:
             - Name: Tag
               Value: !Ref Tag
-        - Name: busybox
-          Image: busybox
-          EntryPoint:
-            - sh
-            - -c
-          Essential: false
-          Memory: 128
-          VolumesFrom:
-            - SourceContainer: app-deployment
-          Command:
-            - /bin/sh -c "while true; do /bin/date > /var/www/my-vol/date; sleep 1; done"
-      Volumes:
-        - Name: my-vol
+            - Name: USE_CLOUD
+              Value: true
+            - Name: CLOUD_CONFIG
+              Value: roman

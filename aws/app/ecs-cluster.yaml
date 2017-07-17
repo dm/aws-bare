@@ -18,7 +18,7 @@ Parameters:
 
   InstanceType:
     Type: String
-    Default: t2.large
+    Default: t2.medium
 
   FoundationStackName:
     Description: Foundation stack name
@@ -26,6 +26,9 @@ Parameters:
 
   SourceSecurityGroup:
     Type: AWS::EC2::SecurityGroup::Id
+
+  SshKeyName:
+    Type: AWS::EC2::KeyPair::KeyName
 
 
 Mappings:
@@ -150,6 +153,7 @@ Resources:
     Properties:
       ImageId: !FindInMap [ AWSRegionToAMI, !Ref "AWS::Region", AMI ]
       InstanceType: !Ref InstanceType
+      KeyName: !Ref SshKeyName
       IamInstanceProfile: !Ref InstanceProfile
       SecurityGroups:
         - !Ref SecurityGroup

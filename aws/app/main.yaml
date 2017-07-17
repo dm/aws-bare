@@ -37,21 +37,45 @@ Parameters:
     Description: Project name
     Type: String
 
+  RepositoryName:
+    AllowedPattern: '[\x20-\x7E]*'
+    ConstraintDescription: Can contain only ASCII characters.
+    Description: The name of the CodeCommit repo
+    Type: String
+
+  RepositoryBranch:
+    AllowedPattern: '[\x20-\x7E]*'
+    ConstraintDescription: Can contain only ASCII characters.
+    Default: master
+    Description: The name of the branch for the CodeCommit repo
+    Type: String
+
+  RepositoryAuthToken:
+    AllowedPattern: '[\x20-\x7E]*'
+    ConstraintDescription: Can contain only ASCII characters.
+    Description: The OAuth (or whatever) token required to obtain sources from your repo.
+    Type: String
+    NoEcho: true
+
   Region:
     Default: us-east-1
     Description: Region
     Type: String
+
+  EcsInstanceType:
+    Default: t2.medium
+    Description: Instance type of ECS cluster instance(s)
+    Type: String
+
+  SshKeyName:
+    Description: Name of keypair to use with managed instances.
+    Type: AWS::EC2::KeyPair::KeyName
 
   UserName:
     Description: User FirstLastName
     Type: String
 
 Resources:
-  CodeCommitRepo:
-    Type: AWS::CodeCommit::Repository
-    Properties:
-      RepositoryName: !Join [ '-', [ !Ref ProjectName, !Ref UserName, !Ref AppName ] ]
-      RepositoryDescription: !Join [ ' ', [ 'Project repository for ', !Ref ProjectName ] ]
 
   LoadBalancer:
     Type: AWS::CloudFormation::Stack
@@ -71,6 +95,9 @@ Resources:
         AppStackName: !Ref AppStackName
         FoundationStackName: !Ref FoundationStackName
         SourceSecurityGroup: !GetAtt LoadBalancer.Outputs.SecurityGroup
+        InstanceType: !Ref EcsInstanceType
+        ClusterSize: 1
+        SshKeyName: !Ref SshKeyName
 
   DeploymentPipeline:
     DependsOn:
@@ -84,21 +111,12 @@ Resources:
         BuildArtifactsBucket: !Ref BuildArtifactsBucket
         InfraDevBucket: !Ref InfraDevBucket
         Cluster: !GetAtt Cluster.Outputs.ClusterName
-        RepositoryName: !GetAtt CodeCommitRepo.Name
+        RepositoryName: !Ref RepositoryName
+        RepositoryBranch: !Ref RepositoryBranch
+        RepositoryAuthToken: !Ref RepositoryAuthToken
         TargetGroup: !GetAtt LoadBalancer.Outputs.TargetGroup
 
 Outputs:
-  CodeCommitRepoArn:
-    Description: Created Code Commit Repo Arn
-    Export:
-      Name: !Sub "${AppStackName}--CodeCommitRepoArn"
-    Value: !GetAtt CodeCommitRepo.Arn
-
-  CodeCommitRepoName:
-    Description: Created Code Commit Repo Name
-    Export:
-      Name: !Sub "${AppStackName}--CodeCommitRepoName"
-    Value: !GetAtt CodeCommitRepo.Name
 
   LoadBalancerUrl:
     Description: URL of the load balancer for the sample service.

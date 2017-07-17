@@ -54,6 +54,7 @@ create-foundation: upload
 create-app: upload-app
 	@aws cloudformation create-stack --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}" \
                 --region ${REGION} \
+                --disable-rollback \
 		--template-body "file://aws/app/main.yaml" \
 		--capabilities CAPABILITY_NAMED_IAM \
 		--parameters \
@@ -64,8 +65,13 @@ create-app: upload-app
 			"ParameterKey=FoundationStackName,ParameterValue=${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
 			"ParameterKey=InfraDevBucket,ParameterValue=myrig.${PROJECT}.${NAME_SUFFIX}.infradev" \
 			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
+			"ParameterKey=RepositoryName,ParameterValue=${REPO}" \
+			"ParameterKey=RepositoryBranch,ParameterValue=${REPO_BRANCH}" \
+			"ParameterKey=RepositoryAuthToken,ParameterValue=${REPO_TOKEN}" \
 			"ParameterKey=UserName,ParameterValue=${NAME_SUFFIX}" \
 			"ParameterKey=Region,ParameterValue=${REGION}" \
+			"ParameterKey=EcsInstanceType,ParameterValue=t2.small" \
+			"ParameterKey=SshKeyName,ParameterValue=${KEY_NAME}" \
 		--tags \
 			"Key=Email,Value=${EMAIL}" \
 			"Key=Environment,Value=${ENV}" \
@@ -109,8 +115,13 @@ update-app: upload-app
 			"ParameterKey=FoundationStackName,ParameterValue=${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
 			"ParameterKey=InfraDevBucket,ParameterValue=myrig.${PROJECT}.${NAME_SUFFIX}.infradev" \
 			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
+			"ParameterKey=RepositoryName,ParameterValue=${REPO}" \
+			"ParameterKey=RepositoryBranch,ParameterValue=${REPO_BRANCH}" \
+			"ParameterKey=RepositoryAuthToken,ParameterValue=${REPO_TOKEN}" \
 			"ParameterKey=UserName,ParameterValue=${NAME_SUFFIX}" \
 			"ParameterKey=Region,ParameterValue=${REGION}" \
+			"ParameterKey=EcsInstanceType,ParameterValue=t2.small" \
+			"ParameterKey=SshKeyName,ParameterValue=${KEY_NAME}" \
 		--tags \
 			"Key=Email,Value=${EMAIL}" \
 			"Key=Environment,Value=${ENV}" \

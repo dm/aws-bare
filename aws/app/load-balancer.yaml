@@ -51,7 +51,7 @@ Resources:
     Properties:
       VpcId:
         Fn::ImportValue: !Sub "${FoundationStackName}--VpcId"
-      Port: 80
+      Port: 8888
       Protocol: HTTP
       Matcher:
         HttpCode: 200-299

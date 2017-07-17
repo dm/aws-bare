@@ -29,6 +29,11 @@ Parameters:
     Description: The name of the branch for the CodeCommit repo
     Type: String
 
+  RepositoryAuthToken:
+    Description: The OAuth token required to obtain sources from your repo.
+    Type: String
+    NoEcho: true
+
   TargetGroup:
     Type: String
 
@@ -103,6 +108,11 @@ Resources:
                   - ecr:InitiateLayerUpload
                   - ecr:UploadLayerPart
                   - ecr:CompleteLayerUpload
+              # TODO:  this needs to be tightened-up.
+              - Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*
+                Effect: Allow
+                Action:
+                  - ssm:GetParameters
 
   CodePipelineServiceRole:
     Type: AWS::IAM::Role
@@ -124,6 +134,15 @@ Resources:
               - Resource:
                   - !Sub arn:aws:s3:::${BuildArtifactsBucket}
                   - !Sub arn:aws:s3:::${BuildArtifactsBucket}/*
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+              - Resource:
+                  - !Sub arn:aws:s3:::${InfraDevBucket}
+                  - !Sub arn:aws:s3:::${InfraDevBucket}/*
                 Effect: Allow
                 Action:
                   - s3:PutObject
@@ -156,22 +175,6 @@ Resources:
       Source:
         Location: !Sub ${BuildArtifactsBucket}/${AppStackName}.zip
         Type: "S3"
-        BuildSpec: |
-          version: 0.2
-          phases:
-            pre_build:
-              commands:
-                - $(aws ecr get-login)
-                - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
-            build:
-              commands:
-                - docker build --tag "${REPOSITORY_URI}:${TAG}" .
-            post_build:
-              commands:
-                - docker push "${REPOSITORY_URI}:${TAG}"
-                - printf '{"tag":"%s"}' $TAG > build.json
-          artifacts:
-            files: build.json
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
         Image: "aws/codebuild/docker:1.12.1"
@@ -197,15 +200,17 @@ Resources:
             - Name: App
               ActionTypeId:
                 Category: Source
-                Owner: AWS
+                Owner: ThirdParty
                 Version: 1
-                Provider: CodeCommit
+                Provider: GitHub
+              Configuration:
+                Repo: !Ref RepositoryName
+                Branch: !Ref RepositoryBranch
+                Owner: buildit
+                OAuthToken: !Ref RepositoryAuthToken
               OutputArtifacts:
                 - Name: App
               RunOrder: 1
-              Configuration:
-                BranchName: !Ref RepositoryBranch
-                RepositoryName: !Ref RepositoryName
             - Name: Template
               ActionTypeId:
                 Category: Source
