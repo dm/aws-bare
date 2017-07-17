@@ -1,7 +1,7 @@
 ---
 
 AWSTemplateFormatVersion: '2010-09-09'
-Description: VPC with 3 public and 3 private subnets
+Description: VPC with 2 public and 2 private subnets
 
 Parameters:
   CidrBlock:
@@ -24,11 +24,11 @@ Parameters:
     Type: String
 
   SubnetPrivateCidrBlocks:
-    Description: Comma-delimited list of three CIDR blocks for private subnets
+    Description: Comma-delimited list of two CIDR blocks for private subnets
     Type: CommaDelimitedList
 
   SubnetPublicCidrBlocks:
-    Description: Comma-delimited list of three CIDR blocks for public subnets
+    Description: Comma-delimited list of two CIDR blocks for public subnets
     Type: CommaDelimitedList
 
 Resources:
@@ -100,7 +100,6 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${Environment}--SubnetPrivateB"
-
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
