@@ -7,6 +7,6 @@ echo 'This script will remove empty the S3 buckets...'
 : ${NAME_SUFFIX?"Need to set name suffix in NAME_SUFFIX env var"}
 
 # Create confirmation etc:
-aws s3 rb s3://myrig.${PROJECT}.${NAME_SUFFIX}.foundation
-aws s3 rb s3://myrig.${PROJECT}.${NAME_SUFFIX}.infradev
-aws s3 rb s3://myrig.${PROJECT}.${NAME_SUFFIX}.build
+aws s3 rb s3://myrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.foundation
+aws s3 rb s3://myrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.infradev
+aws s3 rb s3://myrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.build
