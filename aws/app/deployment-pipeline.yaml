@@ -41,11 +41,17 @@ Parameters:
 Resources:
   Repository:
     Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+    # Hate to do this, but this *will* cause stack-deletion errors if the repo
+    # has any images in it, which any self-respecting repo will have.
     Properties:
       RepositoryName: !Join [ '-', [ !Ref AppStackName, 'ecr', 'repo' ] ]
 
   CloudFormationExecutionRole:
     Type: AWS::IAM::Role
+    # Hate to do this, but if stack deletion fails after this role has been deleted
+    # then you'll never be able to complete deletion of the service stack.
+    DeletionPolicy: Retain
     Properties:
       Path: /
       AssumeRolePolicyDocument: |
