@@ -95,5 +95,3 @@ Resources:
               Value: !Ref Tag
             - Name: USE_CLOUD
               Value: true
-            - Name: CLOUD_CONFIG
-              Value: roman

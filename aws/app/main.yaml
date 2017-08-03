@@ -99,22 +99,43 @@ Resources:
         ClusterSize: 1
         SshKeyName: !Ref SshKeyName
 
-  DeploymentPipeline:
+#  DeploymentPipeline:
+#    DependsOn:
+#      - Cluster
+#      - LoadBalancer
+#    Type: AWS::CloudFormation::Stack
+#    Properties:
+#      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/deployment-pipeline.yaml
+#      Parameters:
+#        AppStackName: !Ref AppStackName
+#        BuildArtifactsBucket: !Ref BuildArtifactsBucket
+#        InfraDevBucket: !Ref InfraDevBucket
+#        Cluster: !GetAtt Cluster.Outputs.ClusterName
+#        RepositoryName: !Ref RepositoryName
+#        RepositoryBranch: !Ref RepositoryBranch
+#        RepositoryAuthToken: !Ref RepositoryAuthToken
+#        TargetGroup: !GetAtt LoadBalancer.Outputs.TargetGroup
+
+  Repository:
+    Type: AWS::ECR::Repository
+    # Hate to do this, but this *will* cause stack-deletion errors if the repo
+    # has any images in it, which any self-respecting repo will have.
+#    DeletionPolicy: Retain
+    Properties:
+      RepositoryName: !Join [ '-', [ !Ref AppStackName, 'ecr', 'repo' ] ]
+
+  BookitServerService:
     DependsOn:
       - Cluster
-      - LoadBalancer
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/deployment-pipeline.yaml
+      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/service.yaml
       Parameters:
-        AppStackName: !Ref AppStackName
-        BuildArtifactsBucket: !Ref BuildArtifactsBucket
-        InfraDevBucket: !Ref InfraDevBucket
+        Tag: latest
+        DesiredCount: 0
         Cluster: !GetAtt Cluster.Outputs.ClusterName
-        RepositoryName: !Ref RepositoryName
-        RepositoryBranch: !Ref RepositoryBranch
-        RepositoryAuthToken: !Ref RepositoryAuthToken
         TargetGroup: !GetAtt LoadBalancer.Outputs.TargetGroup
+        Repository: !Ref Repository
 
 Outputs:
 
