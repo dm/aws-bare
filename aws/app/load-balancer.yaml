@@ -12,6 +12,14 @@ Parameters:
     Description: Foundation stack name
     Type: String
 
+  DnsHostedZoneName:
+    Description: Name of HostedZone (domain name) for DNS record creation
+    Type: String
+
+  DnsSubdomainName:
+    Description: Name of subdomain for DNS record creation.
+    Type: String
+
 
 Resources:
   SecurityGroup:
@@ -77,6 +85,17 @@ Resources:
         - TargetGroupArn: !Ref TargetGroup
           Type: forward
 
+  elbDNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: !Sub "${DnsHostedZoneName}."
+      Comment: DNS for ELB.
+      RecordSets:
+      - Name: !Sub "${DnsSubdomainName}.${DnsHostedZoneName}."
+        Type: A
+        AliasTarget:
+          HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+          DNSName: !GetAtt LoadBalancer.DNSName
 
 Outputs:
   TargetGroup:

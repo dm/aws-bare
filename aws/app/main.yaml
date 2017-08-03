@@ -84,6 +84,8 @@ Resources:
       Parameters:
         AppStackName: !Ref AppStackName
         FoundationStackName: !Ref FoundationStackName
+        DnsHostedZoneName: riglet.io
+        DnsSubdomainName: bookit-server
 
   Cluster:
     DependsOn:
