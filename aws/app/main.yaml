@@ -23,6 +23,10 @@ Parameters:
     Description: Stack environment
     Type: String
 
+  EcsClusterSize:
+    Type: Number
+    Default: 1
+
   FoundationStackName:
     Description: Foundation stack name
     Type: String
@@ -98,7 +102,7 @@ Resources:
         FoundationStackName: !Ref FoundationStackName
         SourceSecurityGroup: !GetAtt LoadBalancer.Outputs.SecurityGroup
         InstanceType: !Ref EcsInstanceType
-        ClusterSize: 1
+        ClusterSize: !Ref EcsClusterSize
         SshKeyName: !Ref SshKeyName
 
 #  DeploymentPipeline:
