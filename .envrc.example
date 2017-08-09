@@ -1,0 +1,9 @@
+export APP=appname
+export DOMAIN=example.tld
+export EMAIL=jdoe@example.com
+export ENV=dev
+export KEY_NAME=username-us-east-1-keypair
+export NAME_SUFFIX=jdoe
+export PROFILE=default
+export PROJECT=appname
+export REGION=us-east-1

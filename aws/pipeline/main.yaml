@@ -1,0 +1,160 @@
+---
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: DevOps AWS Continuous Delivery
+
+Parameters:
+  DevFoundationStackName:
+    Description: Development foundation stack name
+    Type: String
+
+  BuildArtifactsBucket:
+    Type: String
+
+  GithubBranch:
+    Default: develop
+    Type: String
+
+  GithubOAuthToken:
+    Type: String
+
+  GithubOwner:
+    Type: String
+
+  GithubRepo:
+    Type: String
+
+  InfraDevBucket:
+    Type: String
+
+Resources:
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Type: S3
+        Location: !Ref BuildArtifactsBucket
+      DisableInboundStageTransitions: []
+      Name: 'DevOpsCD'
+      RoleArn: !GetAtt [RolePipeline, Arn]
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: InfraDev Pipeline Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: 1
+              Configuration:
+                Branch: !Ref GithubBranch
+                OAuthToken: !Ref GithubOAuthToken
+                Owner: !Ref GithubOwner
+                Repo: !Ref GithubRepo
+              RunOrder: 1
+              OutputArtifacts:
+                - Name: PipelineTemplate
+            - Name: TemplateConfigSources
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: S3
+                Version: '1'
+              Configuration:
+                S3Bucket: !Ref 'InfraDevBucket'
+                S3ObjectKey:
+                  !Join [ '', [ 'devops-pipeline/config/', !Ref DevFoundationStackName, '.zip'] ]
+              OutputArtifacts:
+                - Name: TemplateSource
+              RunOrder: '1'
+            - Name: DevStage
+              Actions:
+                - Name: CreateStack
+                  ActionTypeId:
+                    Category: Deploy
+                    Owner: AWS
+                    Provider: CloudFormation
+                    Version: '1'
+                  InputArtifacts:
+                    - Name: TemplateSource
+                  Configuration:
+                    ActionMode: REPLACE_ON_FAILURE
+                    Capabilities: CAPABILITY_IAM
+                    RoleArn: !GetAtt [RoleCfn, Arn]
+                    StackName: !Ref DevFoundationStackName
+                    TemplateConfiguration: TemplateSource::config/dev.json
+                    TemplatePath: TemplateSource::aws/foundation/main.yaml
+                  RunOrder: 1
+                - Name: ApproveTestStack
+                  ActionTypeId:
+                    Category: Approval
+                    Owner: AWS
+                    Provider: Manual
+                    Version: '1'
+                  Configuration:
+                    CustomData: !Sub 'Create changeset against the Staging and delete Development?'
+                  RunOrder: '2'
+                - Name: DeleteDevCfnStack
+                  ActionTypeId:
+                    Category: Deploy
+                    Owner: AWS
+                    Provider: CloudFormation
+                    Version: '1'
+                  Configuration:
+                    ActionMode: DELETE_ONLY
+                    Capabilities: CAPABILITY_IAM
+                    RoleArn: !GetAtt [RoleCfn, Arn]
+                    StackName: !Ref DevCfnStack
+                  RunOrder: '3'
+
+  RoleCfn:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: ['sts:AssumeRole']
+          Effect: Allow
+          Principal:
+            Service: [cloudformation.amazonaws.com]
+        Version: '2012-10-17'
+      Path: /
+      Policies:
+        - PolicyName: RoleCfn
+          PolicyDocument:
+            Statement:
+              - Action:
+                  - 'ec2:*'
+                Effect: Allow
+                Resource: '*'
+            Version: '2012-10-17'
+
+  RolePipeline:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: ['sts:AssumeRole']
+          Effect: Allow
+          Principal:
+            Service: [codepipeline.amazonaws.com]
+        Version: '2012-10-17'
+      Path: /
+      Policies:
+        - PolicyName: RolePipeline
+          PolicyDocument:
+            Statement:
+              - Action:
+                  - 'cloudformation:CreateChangeSet'
+                  - 'cloudformation:CreateStack'
+                  - 'cloudformation:DeleteChangeSet'
+                  - 'cloudformation:DeleteStack'
+                  - 'cloudformation:DescribeChangeSet'
+                  - 'cloudformation:DescribeStacks'
+                  - 'cloudformation:ExecuteChangeSet'
+                  - 'cloudformation:SetStackPolicy'
+                  - 'cloudformation:UpdateStack'
+                  - 'iam:PassRole'
+                  - 's3:*'
+                Effect: Allow
+                Resource: '*'
+            Version: '2012-10-17'

@@ -1,3 +1,5 @@
+/.*_ami_id
+/.cfn-package/*
+/.envrc
 /.make
 /.terraform
-/.*_ami_id

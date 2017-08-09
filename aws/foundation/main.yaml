@@ -3,13 +3,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: AWS Foundation Template
 
-
 Parameters:
-  AvailabilityZones:
-    Default: us-east-1a,us-east-1b
-    Description: Comma-delimited list of availabilty zones
-    Type: CommaDelimitedList
-
   CidrBlock:
     Default: 10.1.0.0/16
     Description: VPC Cidr Block
@@ -21,7 +15,6 @@ Parameters:
     Type: String
 
   FoundationBucket:
-    Default: myrig.awsrig.dmacedo.foundation
     Description: Foundation S3 Bucket
     Type: String
 
@@ -31,7 +24,6 @@ Parameters:
     Type: String
 
   PublicFQDN:
-    Default: buildit.lab.pt
     Description: Public Fully Qualified Domain Name
     Type: String
 
