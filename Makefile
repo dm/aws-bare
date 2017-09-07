@@ -8,7 +8,6 @@ export KEY_NAME ?= ""
 export NAME_SUFFIX ?= awsrig-test-bucket
 export PROFILE ?= default
 export PROJECT ?= projectname
-export RDS_ROOT_PASSWORD ?= $(shell cat ~/.awsrig.rds_root_password)
 export REGION ?= us-east-1
 
 export AWS_PROFILE=${PROFILE}
@@ -20,7 +19,6 @@ export AWS_REGION=${REGION}
 # These are created outside Terraform since it'll store sensitive contents!
 # When completely empty, can be destroyed with `make destroy-deps`
 deps:
-	touch ~/.awsrig.rds_root_password
 	@./bin/create-buckets.sh
 
 # Destroy dependency S3 buckets, only destroy if empty
@@ -194,14 +192,6 @@ package-pipeline:
 		--s3-bucket awsrig.${PROJECT}.${NAME_SUFFIX}.infradev \
 		--template-file aws/pipeline/main.yml
 
-create-pipeline:
-	aws cloudformation deploy \
-		--capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-		--no-execute-changeset \
-		--region ${REGION} \
-		--stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-pipeline" \
-		--template-file .cfn-pkg/packaged.yml
-
 ## Upload Pipeline Templates to S3
 # Uploads DevOps CD templates to the InfraDev bucket
 # awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipelines/
@@ -274,9 +264,6 @@ ifndef PROFILE
 endif
 ifndef PROJECT
 	$(error PROJECT is undefined, should be in file .make)
-endif
-ifndef RDS_ROOT_PASSWORD
-	$(error RDS_ROOT_PASSWORD is undefined, should be in file .make)
 endif
 ifndef REGION
 	$(error REGION is undefined, should be in file .make)
