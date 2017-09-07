@@ -105,7 +105,7 @@ Resources:
                 RoleArn: !GetAtt [RoleCfn, Arn]
                 StackName: !Join [ '-', [ !Ref ProjectName, 'dev', !Ref NameSuffix, 'foundation'] ]
                 TemplateConfiguration: "TemplateSource::config.dev.json"
-                TemplatePath: "PipelineTemplate::aws/foundation/main.yml"
+                TemplatePath: "PipelineTemplate::aws/foundation/main.yaml"
               RunOrder: 1
             - Name: ApproveDevStack
               ActionTypeId:
@@ -133,7 +133,7 @@ Resources:
                 RoleArn: !GetAtt [RoleCfn, Arn]
                 StackName: !Join [ '-', [ !Ref ProjectName, 'stg', !Ref NameSuffix, 'foundation'] ]
                 TemplateConfiguration: "TemplateSource::config.stg.json"
-                TemplatePath: "PipelineTemplate::aws/foundation/main.yml"
+                TemplatePath: "PipelineTemplate::aws/foundation/main.yaml"
               RunOrder: 1
             - Name: ApproveChangeSet
               ActionTypeId:
@@ -182,7 +182,7 @@ Resources:
                 RoleArn: !GetAtt [RoleCfn, Arn]
                 StackName: !Join [ '-', [ !Ref ProjectName, 'prd', !Ref NameSuffix, 'foundation'] ]
                 TemplateConfiguration: "TemplateSource::config.prd.json"
-                TemplatePath: "PipelineTemplate::aws/foundation/main.yml"
+                TemplatePath: "PipelineTemplate::aws/foundation/main.yaml"
               RunOrder: 1
             - Name: ApproveChangeSet
               ActionTypeId:
