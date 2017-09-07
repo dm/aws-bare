@@ -7,10 +7,6 @@ Description: >
   Uses Foundation bucket artifacts to create stacks and changesets.
 
 Parameters:
-  PipelineStackName:
-    Description: DevOps CD stack name
-    Type: String
-
   ProjectName:
     Description: Project Name
     Type: String
@@ -34,22 +30,6 @@ Parameters:
 
   BuildArtifactsBucket:
     Description: Build S3 Bucket
-    Type: String
-
-  TemplateFileName:
-    Description: Template file to build in CFn
-    Type: String
-
-  DevStackConfig:
-    Description: Configuration file name for the Development stack
-    Type: String
-
-  StgStackConfig:
-    Description: Configuration file name for the Staging stack
-    Type: String
-
-  ProdStackConfig:
-    Description: Configuration file name for the Production stack
     Type: String
 
   # Github settings for Pipeline source
@@ -80,10 +60,9 @@ Resources:
       RoleArn: !GetAtt [RolePipeline, Arn]
       Stages:
 
-
         - Name: Source
           Actions:
-            - Name: InfraDev Pipeline Source
+            - Name: InfraDevPipelineSource
               ActionTypeId:
                 Category: Source
                 Owner: ThirdParty
@@ -97,20 +76,18 @@ Resources:
               RunOrder: 1
               OutputArtifacts:
                 - Name: PipelineTemplate
-          - Name: TemplateConfigSources
-            ActionTypeId:
-              Category: Source
-              Owner: AWS
-              Provider: S3
-              Version: '1'
-            Configuration:
-              S3Bucket: !Ref 'InfraDevBucket'
-              S3ObjectKey:
-                !Join [ '', [ 'pipeline/config/', !Ref ProjectName, '-', !Ref NameSuffix, '-', 'foundation', '.zip'] ]
-            OutputArtifacts:
-              - Name: TemplateSource
-            RunOrder: '1'
-
+            - Name: TemplateConfigSource
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: S3
+                Version: '1'
+              Configuration:
+                S3Bucket: !Ref 'InfraDevBucket'
+                S3ObjectKey: !Join [ '', [ 'pipeline/config/', !Ref ProjectName, '-', !Ref NameSuffix, '-', 'foundation', '.zip'] ]
+              OutputArtifacts:
+                - Name: TemplateSource
+              RunOrder: 2
 
         - Name: DevStage
           Actions:
@@ -124,28 +101,12 @@ Resources:
                 - Name: PipelineTemplate
                 - Name: TemplateSource
               Configuration:
-                ActionMode: REPLACE_ON_FAILURE
+                ActionMode: CREATE_UPDATE
                 RoleArn: !GetAtt [RoleCfn, Arn]
                 StackName: !Join [ '-', [ !Ref ProjectName, 'dev', !Ref NameSuffix, 'foundation'] ]
-                TemplateConfiguration: !Sub "TemplateSource::config.dev.json"
-                TemplatePath: !Sub "TemplateSource::${TemplateFileName}"
-              RunOrder: '1'
-            - Name: CreateChangeSet
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: '1'
-              InputArtifacts:
-                - Name: TemplateSource
-              Configuration:
-                ActionMode: CHANGE_SET_REPLACE
-                RoleArn: !GetAtt [RoleCfn, Arn]
-                StackName: !Join [ '-', [ !Ref ProjectName, 'stg', !Ref NameSuffix, 'foundation'] ]
-                ChangeSetName: !Join [ '-', [ !Ref ProjectName, 'dev-stg', !Ref NameSuffix, 'changeset'] ]
-                TemplateConfiguration: !Sub "TemplateSource::${StgStackConfig}"
-                TemplatePath: !Sub "TemplateSource::${TemplateFileName}"
-              RunOrder: '2'
+                TemplateConfiguration: "TemplateSource::config.dev.json"
+                TemplatePath: "PipelineTemplate::aws/foundation/main.yml"
+              RunOrder: 1
             - Name: ApproveDevStack
               ActionTypeId:
                 Category: Approval
@@ -153,8 +114,8 @@ Resources:
                 Provider: Manual
                 Version: '1'
               Configuration:
-                CustomData: !Sub 'Apply changeset against the Staging Stack?'
-              RunOrder: '3'
+                CustomData: !Sub 'Create changeset against the Staging Stack?'
+              RunOrder: 2
 
         - Name: StgStage
           Actions:
@@ -168,12 +129,12 @@ Resources:
                 - Name: TemplateSource
               Configuration:
                 ActionMode: CHANGE_SET_REPLACE
+                ChangeSetName: !Join [ '-', [ !Ref ProjectName, 'dev-stg', !Ref NameSuffix, 'changeset'] ]
                 RoleArn: !GetAtt [RoleCfn, Arn]
                 StackName: !Join [ '-', [ !Ref ProjectName, 'stg', !Ref NameSuffix, 'foundation'] ]
-                ChangeSetName: !Join [ '-', [ !Ref ProjectName, 'dev-stg', !Ref NameSuffix, 'changeset'] ]
-                TemplateConfiguration: !Sub "TemplateSource::${StgStackConfig}"
-                TemplatePath: !Sub "TemplateSource::${TemplateFileName}"
-              RunOrder: '1'
+                TemplateConfiguration: "TemplateSource::config.stg.json"
+                TemplatePath: "PipelineTemplate::aws/foundation/main.yml"
+              RunOrder: 1
             - Name: ApproveChangeSet
               ActionTypeId:
                 Category: Approval
@@ -181,8 +142,8 @@ Resources:
                 Provider: Manual
                 Version: '1'
               Configuration:
-                CustomData: !Sub 'New changeset on ${ProdStackName} stack. Deploy changes?'
-              RunOrder: '2'
+                CustomData: !Sub 'New changeset on Staging stack. Deploy changes?'
+              RunOrder: 2
             - Name: ExecuteChangeSet
               ActionTypeId:
                 Category: Deploy
@@ -191,12 +152,19 @@ Resources:
                 Version: '1'
               Configuration:
                 ActionMode: CHANGE_SET_EXECUTE
-                ChangeSetName: !Ref ChangeSetName
+                ChangeSetName: !Join [ '-', [ !Ref ProjectName, 'dev-stg', !Ref NameSuffix, 'changeset'] ]
                 RoleArn: !GetAtt [RoleCfn, Arn]
-                StackName: !Ref ProdStackName
-              RunOrder: '3'
-
-
+                StackName: !Join [ '-', [ !Ref ProjectName, 'stg', !Ref NameSuffix, 'foundation'] ]
+              RunOrder: 3
+            - Name: ApproveStgStack
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: '1'
+              Configuration:
+                CustomData: !Sub 'Create changeset against the Production Stack?'
+              RunOrder: 4
 
         - Name: ProdStage
           Actions:
@@ -210,12 +178,12 @@ Resources:
                 - Name: TemplateSource
               Configuration:
                 ActionMode: CHANGE_SET_REPLACE
+                ChangeSetName: !Join [ '-', [ !Ref ProjectName, 'stg-prd', !Ref NameSuffix, 'changeset'] ]
                 RoleArn: !GetAtt [RoleCfn, Arn]
                 StackName: !Join [ '-', [ !Ref ProjectName, 'prd', !Ref NameSuffix, 'foundation'] ]
-                ChangeSetName: !Ref ChangeSetName
-                TemplateConfiguration: !Sub "TemplateSource::${ProdStackConfig}"
-                TemplatePath: !Sub "TemplateSource::${TemplateFileName}"
-              RunOrder: '1'
+                TemplateConfiguration: "TemplateSource::config.prd.json"
+                TemplatePath: "PipelineTemplate::aws/foundation/main.yml"
+              RunOrder: 1
             - Name: ApproveChangeSet
               ActionTypeId:
                 Category: Approval
@@ -223,8 +191,8 @@ Resources:
                 Provider: Manual
                 Version: '1'
               Configuration:
-                CustomData: !Sub 'New changeset on ${ProdStackName} stack. Deploy changes?'
-              RunOrder: '2'
+                CustomData: !Sub 'New changeset on Production stack. Deploy changes?'
+              RunOrder: 2
             - Name: ExecuteChangeSet
               ActionTypeId:
                 Category: Deploy
@@ -233,10 +201,10 @@ Resources:
                 Version: '1'
               Configuration:
                 ActionMode: CHANGE_SET_EXECUTE
-                ChangeSetName: !Ref ChangeSetName
+                ChangeSetName: !Join [ '-', [ !Ref ProjectName, 'stg-prd', !Ref NameSuffix, 'changeset'] ]
                 RoleArn: !GetAtt [RoleCfn, Arn]
-                StackName: !Ref ProdStackName
-              RunOrder: '3'
+                StackName: !Join [ '-', [ !Ref ProjectName, 'prd', !Ref NameSuffix, 'foundation'] ]
+              RunOrder: 3
 
   RoleCfn:
     Type: AWS::IAM::Role

@@ -33,16 +33,16 @@ create-pipeline: upload-pipeline
 		--capabilities CAPABILITY_NAMED_IAM \
 		--disable-rollback \
 		--parameters \
+			"ParameterKey=BuildArtifactsBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.build" \
 			"ParameterKey=Environment,ParameterValue=all" \
 			"ParameterKey=FoundationBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.foundation" \
 			"ParameterKey=GithubBranch,ParameterValue=${GITHUB_BRANCH}" \
 			"ParameterKey=GithubOAuthToken,ParameterValue=${GITHUB_OAUTH_TOKEN}" \
 			"ParameterKey=GithubOwner,ParameterValue=${GITHUB_OWNER}" \
 			"ParameterKey=GithubRepo,ParameterValue=${GITHUB_REPO}" \
+			"ParameterKey=InfraDevBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.infradev" \
 			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
-			"ParameterKey=BuildBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.build" \
 			"ParameterKey=NameSuffix,ParameterValue=${NAME_SUFFIX}" \
-			"ParameterKey=Region,ParameterValue=${REGION}" \
 		--region ${REGION} \
 		--tags \
 			"Key=Email,Value=${EMAIL}" \
@@ -170,6 +170,13 @@ outputs-app:
 		--stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}" \
 		--query "Stacks[][Outputs] | []" | jq
 
+
+
+## Deletes the DevOps Pipeline CF stack
+delete-pipeline:
+	@if ${MAKE} .prompt-yesno message="Are you sure you wish to delete the Foundation Stack?"; then \
+		aws cloudformation delete-stack --region ${REGION} --stack-name "${PROJECT}-${NAME_SUFFIX}-pipeline"; \
+	fi
 
 ## Deletes the Foundation CF stack
 delete-foundation:
