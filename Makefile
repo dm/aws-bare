@@ -29,7 +29,29 @@ destroy-deps:
 		sh ./bin/destroy-deps.sh; \
 	fi
 
-## Creates Foundation and Build
+## Creates Foundation and Build DevOps Pipeline
+create-pipeline: upload-pipeline
+	@aws cloudformation create-stack --stack-name "${PROJECT}-${NAME_SUFFIX}-pipeline" \
+		--capabilities CAPABILITY_NAMED_IAM \
+		--disable-rollback \
+		--parameters \
+			"ParameterKey=Environment,ParameterValue=all" \
+			"ParameterKey=FoundationBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.foundation" \
+			"ParameterKey=GithubBranch,ParameterValue=${GITHUB_BRANCH}" \
+			"ParameterKey=GithubOAuthToken,ParameterValue=${GITHUB_OAUTH_TOKEN}" \
+			"ParameterKey=GithubOwner,ParameterValue=${GITHUB_OWNER}" \
+			"ParameterKey=GithubRepo,ParameterValue=${GITHUB_REPO}" \
+			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
+			"ParameterKey=BuildBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.build" \
+			"ParameterKey=NameSuffix,ParameterValue=${NAME_SUFFIX}" \
+			"ParameterKey=Region,ParameterValue=${REGION}" \
+		--region ${REGION} \
+		--tags \
+			"Key=Email,Value=${EMAIL}" \
+			"Key=Environment,Value=${ENV}" \
+			"Key=Owner,Value=${NAME_SUFFIX}" \
+			"Key=ProjectName,Value=${PROJECT}-${ENV}-${NAME_SUFFIX}" \
+		--template-body "file://aws/pipeline/main.yaml"
 
 ## Creates a new CF stack
 create-foundation: upload
@@ -184,7 +206,9 @@ create-pipeline:
 # Uploads DevOps CD templates to the InfraDev bucket
 # awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipelines/
 upload-pipeline:
-	@aws s3 cp --recursive aws/pipeline/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipelines/
+	cd config/
+	zip "${PROJECT}-${NAME_SUFFIX}-foundation.zip" config.*
+	@aws s3 cp --recursive config/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipeline/config/
 
 ## Upload CF Templates to S3
 # Uploads foundation templates to the Foundation bucket

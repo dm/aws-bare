@@ -1,6 +1,28 @@
-# AWS The Rig
+# AWS "Bare Metal" Rig  (BMR)
 
-This setup will create a CloudFormation, GoCD powered Rig on AWS.
+This repo creates a CloudFormation continuous delivery pipeline using only
+AWS services only.
+
+It's composed of a DevOps CD Pipeline, a Foundation VPC and an application ECS
+cluster with it's own delivery pipeline.
+
+
+## Services Used
+
+ * AutoScaling (ECS)
+ * CloudFormation
+ * CodeBuild
+ * CodeCommit
+ * CodePipeline
+ * ECR
+ * ECS
+ * Elastic LoadBalancer (V2)
+ * _Github_
+ * IAM / SecurityGroups
+ * Route53
+ * S3
+ * VPC + multi-zone, public/private networking/routing, Internet Gateway, Nat Gateway
+
 
 ## Setup
 
@@ -12,7 +34,7 @@ For using this repo you'll need:
  * Setup `.make` for local settings
 
 This can either be done by copying settings from the template `.make.example`
-and save in a new file `.make`:
+and save in a new file `.make` or done interactively through `make .make`:
 
 ```
 APP = <Application name if you're doing more than Foundation stack>
@@ -26,15 +48,14 @@ PROJECT = <Project Name>
 REGION = <AWS Region>
 ```
 
-Or also done interactively through `make .make`.
+Confirm environment vars are properly set with `make check-env`
 
 Run `make deps` to create required S3 buckets.
 
-Confirm everything is valid with `make check-env`
-
 ## Makefile Targets
 
-  * Run `make create-foundation` to start an AWS Bare Rig Foundation Stack.
+  * Run `make create-pipeline` to start an AWS BMR Foundation DevOps Pipeline
+  * Run `make create-foundation` to start an AWS BMR Foundation Stack
 
 This is the Stack that will be shared by all management and services in an AWS Region.
 
@@ -42,8 +63,8 @@ This is the Stack that will be shared by all management and services in an AWS R
   * Check the outputs as well with `make outputs-foundation`
   * Run `make create-app`, same options for status: `make status-app` and outputs `make outputs-app`
 
-
 To delete everything, in order:
 
-  * Run `make delete-app` to delete the App stack.
-  * Run `make delete-foundation` to delete the Foundation stack.
+  * Run `make delete-app` to delete the App stack
+  * Run `make delete-foundation` to delete the Foundation stack
+  * Run `make delete-pipeline` to delete the Devops Pipeline stack

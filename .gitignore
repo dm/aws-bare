@@ -2,4 +2,4 @@
 /.cfn-package/*
 /.envrc
 /.make
-/.terraform
+/config/*
