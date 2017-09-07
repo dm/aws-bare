@@ -196,9 +196,8 @@ package-pipeline:
 # Uploads DevOps CD templates to the InfraDev bucket
 # awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipelines/
 upload-pipeline:
-	cd config/
-	zip "${PROJECT}-${NAME_SUFFIX}-foundation.zip" config.*
-	@aws s3 cp --recursive config/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipeline/config/
+	@sh ./bin/build-configs.sh
+	@aws s3 cp config/*.zip s3://awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipeline/config/
 
 ## Upload CF Templates to S3
 # Uploads foundation templates to the Foundation bucket
