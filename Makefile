@@ -96,6 +96,29 @@ create-app: upload-app
 		--template-body "file://aws/app/main.yaml"
 
 
+## Creates Foundation and Build DevOps Pipeline
+update-pipeline: upload-pipeline
+	@aws cloudformation update-stack --stack-name "${PROJECT}-${NAME_SUFFIX}-pipeline" \
+		--capabilities CAPABILITY_NAMED_IAM \
+		--parameters \
+			"ParameterKey=BuildArtifactsBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.build" \
+			"ParameterKey=Environment,ParameterValue=all" \
+			"ParameterKey=FoundationBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.foundation" \
+			"ParameterKey=GithubBranch,ParameterValue=${GITHUB_BRANCH}" \
+			"ParameterKey=GithubOAuthToken,ParameterValue=${GITHUB_OAUTH_TOKEN}" \
+			"ParameterKey=GithubOwner,ParameterValue=${GITHUB_OWNER}" \
+			"ParameterKey=GithubRepo,ParameterValue=${GITHUB_REPO}" \
+			"ParameterKey=InfraDevBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.infradev" \
+			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
+			"ParameterKey=NameSuffix,ParameterValue=${NAME_SUFFIX}" \
+		--region ${REGION} \
+		--tags \
+			"Key=Email,Value=${EMAIL}" \
+			"Key=Environment,Value=${ENV}" \
+			"Key=Owner,Value=${NAME_SUFFIX}" \
+			"Key=ProjectName,Value=${PROJECT}-${ENV}-${NAME_SUFFIX}" \
+		--template-body "file://aws/pipeline/main.yaml"
+
 ## Updates existing Foundation CF stack
 update-foundation: upload
 	@aws cloudformation update-stack --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
@@ -204,7 +227,7 @@ package-pipeline:
 # awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipelines/
 upload-pipeline:
 	@sh ./bin/build-configs.sh
-	@aws s3 cp config/*.zip s3://awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipeline/config/
+	@aws s3 cp config/${PROJECT}-${NAME_SUFFIX}-foundation.zip s3://awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipeline/config/
 
 ## Upload CF Templates to S3
 # Uploads foundation templates to the Foundation bucket
