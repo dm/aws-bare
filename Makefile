@@ -233,7 +233,9 @@ upload-pipeline:
 # Uploads foundation templates to the Foundation bucket
 # awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/${ENV}/templates/
 upload:
-	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/${ENV}/templates/
+	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/dev/templates/
+	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/stg/templates/
+	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/prd/templates/
 
 
 ## Upload CF Templates for APP
