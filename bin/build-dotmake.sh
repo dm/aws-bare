@@ -6,6 +6,10 @@ read -p 'Application: ' app
 read -p 'Domain: ' domain
 read -p 'Your e-mail: ' email
 read -p 'Environment (tst, dev, stg, prd): ' env
+read -p 'Github branch: ' github_branch
+read -p 'Github OAuth token: ' github_token
+read -p 'Github username: ' github_user
+read -p 'Github repo: ' github_repo
 read -p 'AWS SSH keyname: ' keyname
 read -p 'Your name suffix (firstlastname): ' name_suffix
 read -p 'AWS Profile: ' profile
@@ -18,6 +22,10 @@ APP = ${app}
 DOMAIN = ${domain}
 EMAIL = ${email}
 ENV = ${env}
+GITHUB_BRANCH = ${github_branch}
+GITHUB_OAUTH_TOKEN = ${github_token}
+GITHUB_OWNER = ${github_user}
+GITHUB_REPO = ${github_repo}
 KEY_NAME = ${keyname}
 NAME_SUFFIX = ${name_suffix}
 PROFILE = ${profile}
