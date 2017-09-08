@@ -87,7 +87,7 @@ Resources:
                 S3ObjectKey: !Join [ '', [ 'pipeline/config/', !Ref ProjectName, '-', !Ref NameSuffix, '-', 'foundation', '.zip'] ]
               OutputArtifacts:
                 - Name: TemplateSource
-              RunOrder: 2
+              RunOrder: 1
 
         - Name: DevStage
           Actions:
@@ -126,6 +126,7 @@ Resources:
                 Provider: CloudFormation
                 Version: '1'
               InputArtifacts:
+                - Name: PipelineTemplate
                 - Name: TemplateSource
               Configuration:
                 ActionMode: CHANGE_SET_REPLACE
@@ -175,6 +176,7 @@ Resources:
                 Provider: CloudFormation
                 Version: '1'
               InputArtifacts:
+                - Name: PipelineTemplate
                 - Name: TemplateSource
               Configuration:
                 ActionMode: CHANGE_SET_REPLACE
