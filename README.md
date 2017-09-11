@@ -1,7 +1,7 @@
 # AWS "Bare Metal" Rig  (BMR)
 
 This repo creates a CloudFormation continuous delivery pipeline using only
-AWS services only.
+AWS services. (Will likely replace Github with CodeCommit as well.)
 
 It's composed of a DevOps CD Pipeline, a Foundation VPC and an application ECS
 cluster with it's own delivery pipeline.
