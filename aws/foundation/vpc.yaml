@@ -65,7 +65,7 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: !Sub "${Environment}--SubnetPublicA"
+          Value: !Sub "${FoundationStackName}--SubnetPublicA"
 
   SubnetPrivateA:
     Type: AWS::EC2::Subnet
@@ -76,7 +76,7 @@ Resources:
       CidrBlock: !Select [ 0, !Ref SubnetPrivateCidrBlocks ]
       Tags:
         - Key: Name
-          Value: !Sub "${Environment}--SubnetPrivateA"
+          Value: !Sub "${FoundationStackName}--SubnetPrivateA"
 
   SubnetPublicB:
     Type: AWS::EC2::Subnet
@@ -88,7 +88,7 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: !Sub "${Environment}--SubnetPublicB"
+          Value: !Sub "${FoundationStackName}--SubnetPublicB"
 
   SubnetPrivateB:
     Type: AWS::EC2::Subnet
@@ -99,7 +99,7 @@ Resources:
       CidrBlock: !Select [ 1, !Ref SubnetPrivateCidrBlocks ]
       Tags:
         - Key: Name
-          Value: !Sub "${Environment}--SubnetPrivateB"
+          Value: !Sub "${FoundationStackName}--SubnetPrivateB"
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -117,7 +117,7 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub "${Environment}--RouteTablePrivateA"
+          Value: !Sub "${FoundationStackName}--RouteTablePrivateA"
       VpcId:
         Ref: VPC
 
@@ -134,7 +134,7 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub "${Environment}--RouteTablePrivateB"
+          Value: !Sub "${FoundationStackName}--RouteTablePrivateB"
       VpcId:
         Ref: VPC
 
@@ -151,7 +151,7 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub "${Environment}--RouteTablePublic"
+          Value: !Sub "${FoundationStackName}--RouteTablePublic"
       VpcId:
         Ref: VPC
 
