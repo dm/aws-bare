@@ -5,7 +5,6 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Parameters:
   AppName:
-    Default: twig
     Description: Application name
     Type: String
 
@@ -14,12 +13,10 @@ Parameters:
     Type: String
 
   BuildArtifactsBucket:
-    Default: myrig.awsrig.dmacedo.build
     Description: Build Artifacts S3 Bucket
     Type: String
 
   Environment:
-    Default: tst
     Description: Stack environment
     Type: String
 
@@ -28,12 +25,10 @@ Parameters:
     Type: String
 
   InfraDevBucket:
-    Default: myrig.awsrig.dmacedo.infradev
-    Description: InfraDev S3 Bucket
+    Description: App S3 Bucket
     Type: String
 
   ProjectName:
-    Default: awsrig
     Description: Project name
     Type: String
 
