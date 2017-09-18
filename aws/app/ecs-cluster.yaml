@@ -48,7 +48,10 @@ Parameters:
     Description: Foundation stack name
     Type: String
 
-  SourceSecurityGroup:
+  ServerSourceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+
+  WebSourceSecurityGroup:
     Type: AWS::EC2::SecurityGroup::Id
 
   SshKeyName:
@@ -107,7 +110,9 @@ Resources:
     Properties:
       GroupDescription: !Sub ${AWS::StackName}-hosts
       SecurityGroupIngress:
-        - SourceSecurityGroupId: !Ref SourceSecurityGroup
+        - SourceSecurityGroupId: !Ref ServerSourceSecurityGroup
+          IpProtocol: -1
+        - SourceSecurityGroupId: !Ref WebSourceSecurityGroup
           IpProtocol: -1
       VpcId:
         Fn::ImportValue: !Sub "${FoundationStackName}--VpcId"

@@ -36,8 +36,15 @@ Parameters:
   TargetGroup:
     Type: String
 
+  BookitApiDomainName:
+    Type: String
+    Default: example.com
+
   ContainerPort:
     Type: Number
+
+  ParameterStoreNamespace:
+    Type: String
 
 Resources:
   ECSServiceRole:
