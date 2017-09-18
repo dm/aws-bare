@@ -36,6 +36,9 @@ Parameters:
   TargetGroup:
     Type: String
 
+  ContainerPort:
+    Type: Number
+
 Resources:
   ECSServiceRole:
     Type: AWS::IAM::Role
