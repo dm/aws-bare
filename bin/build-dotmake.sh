@@ -15,6 +15,7 @@ read -p 'Your name suffix (firstlastname): ' name_suffix
 read -p 'AWS Profile: ' profile
 read -p 'Project: ' project
 read -p 'AWS region: ' region
+read -p 'Subdomain: ' subdomain
 echo
 
 cat << EOF > .make
@@ -31,6 +32,7 @@ NAME_SUFFIX = ${name_suffix}
 PROFILE = ${profile}
 PROJECT = ${project}
 REGION = ${region}
+SUBDOMAIN = ${subdomain}
 EOF
 
 echo 'Saved .make!'
