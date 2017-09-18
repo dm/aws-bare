@@ -175,6 +175,7 @@ Resources:
     Properties:
       ImageId: !FindInMap [ AWSRegionToAMI, !Ref "AWS::Region", AMI ]
       InstanceType: !Ref InstanceType
+      KeyName: !Ref SshKeyName
       IamInstanceProfile: !Ref InstanceProfile
       KeyName: !Ref SshKeyName
       SecurityGroups:

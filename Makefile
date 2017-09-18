@@ -66,7 +66,7 @@ create-foundation: upload
 		--parameters \
 			"ParameterKey=CidrBlock,ParameterValue=10.1.0.0/16" \
 			"ParameterKey=Environment,ParameterValue=${ENV}" \
-			"ParameterKey=FoundationBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.foundation" \
+			"ParameterKey=FoundationBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.foundation" \
 			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
 			"ParameterKey=PublicDomain,ParameterValue=${DOMAIN}" \
 			"ParameterKey=PublicFQDN,ParameterValue=${SUBDOMAIN}.${DOMAIN}" \
@@ -85,6 +85,7 @@ create-foundation: upload
 create-app: upload-app
 	@aws cloudformation create-stack --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}" \
 		--capabilities CAPABILITY_NAMED_IAM \
+		--disable-rollback \
 		--parameters \
 			"ParameterKey=AppName,ParameterValue=${APP}" \
 			"ParameterKey=AppStackName,ParameterValue=${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}" \
@@ -93,7 +94,7 @@ create-app: upload-app
 			"ParameterKey=ContainerPort,ParameterValue=8080" \
 			"ParameterKey=Environment,ParameterValue=${ENV}" \
 			"ParameterKey=FoundationStackName,ParameterValue=${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
-			"ParameterKey=InfraDevBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.infradev" \
+			"ParameterKey=InfraDevBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.infradev" \
 			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
 			"ParameterKey=PublicDomain,ParameterValue=${SUBDOMAIN}.${DOMAIN}" \
 			"ParameterKey=PublicFQDN,ParameterValue=${APP}.${SUBDOMAIN}.${DOMAIN}" \
@@ -140,7 +141,7 @@ update-foundation: upload
 		--parameters \
 			"ParameterKey=CidrBlock,ParameterValue=10.1.0.0/16" \
 			"ParameterKey=Environment,ParameterValue=${ENV}" \
-			"ParameterKey=FoundationBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.foundation" \
+			"ParameterKey=FoundationBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.foundation" \
 			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
 			"ParameterKey=PublicDomain,ParameterValue=${DOMAIN}" \
 			"ParameterKey=PublicFQDN,ParameterValue=${SUBDOMAIN}.${DOMAIN}" \
@@ -168,7 +169,7 @@ update-app: upload-app
 			"ParameterKey=ContainerPort,ParameterValue=8080" \
 			"ParameterKey=Environment,ParameterValue=${ENV}" \
 			"ParameterKey=FoundationStackName,ParameterValue=${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
-			"ParameterKey=InfraDevBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.infradev" \
+			"ParameterKey=InfraDevBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.infradev" \
 			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
 			"ParameterKey=PublicDomain,ParameterValue=${SUBDOMAIN}.${DOMAIN}" \
 			"ParameterKey=PublicFQDN,ParameterValue=${APP}.${SUBDOMAIN}.${DOMAIN}" \
@@ -260,31 +261,31 @@ upload-pipeline: upload-all-envs
 
 ## Upload CF Templates to S3
 # Uploads foundation templates to the Foundation bucket
-# awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/${ENV}/templates/
+# awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.foundation/${ENV}/templates/
 upload:
-	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/${ENV}/templates/
+	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.foundation/${ENV}/templates/
 
 
 ## Upload CF Templates to S3
 # Uploads foundation templates to the Foundation bucket
 # awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/${ENV}/templates/
 upload-all-envs:
-	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/dev/templates/
-	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/stg/templates/
-	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/prd/templates/
+	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.foundation/dev/templates/
+	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.foundation/stg/templates/
+	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.foundation/prd/templates/
 
 
 ## Upload CF Templates for APP
 # Note that these templates will be stored in your InfraDev Project **shared** bucket:
-# awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/${ENV}/templates/
+# awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.infradev/${ENV}/templates/
 upload-app:
-	@aws s3 cp --recursive aws/app/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/${ENV}/templates/
+	@aws s3 cp --recursive aws/app/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.infradev/${ENV}/templates/
 	pwd=$(shell pwd)
 	cd aws/app/ && zip templates.zip *.yaml
 	cd ${pwd}
-	@aws s3 cp aws/app/templates.zip s3://awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}/templates/
+	@aws s3 cp aws/app/templates.zip s3://awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.infradev/${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}/templates/
 	rm -rf aws/app/templates.zip
-	@aws s3 cp aws/app/service.yaml s3://awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}/templates/
+	@aws s3 cp aws/app/service.yaml s3://awsrig.${PROJECT}.${NAME_SUFFIX}.${REGION}.infradev/${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}/templates/
 
 
 store-ubuntu-ami:

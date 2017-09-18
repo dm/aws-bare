@@ -28,6 +28,10 @@ Parameters:
     Description: Stack environment
     Type: String
 
+  EcsClusterSize:
+    Type: Number
+    Default: 1
+
   FoundationStackName:
     Description: Foundation stack name
     Type: String
@@ -94,13 +98,12 @@ Resources:
         SourceSecurityGroup: !GetAtt LoadBalancer.Outputs.SecurityGroup
         SshKeyName: !Ref SshKeyName
 
-  DeploymentPipeline:
+  BookitServerService:
     DependsOn:
       - Cluster
-      - LoadBalancer
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/deployment-pipeline.yaml
+      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/service.yaml
       Parameters:
         AppName: !Ref AppName
         AppStackName: !Ref AppStackName
@@ -112,19 +115,9 @@ Resources:
         RepositoryName: !GetAtt CodeCommitRepo.Name
         RepositoryBranch: !Ref RepositoryBranch
         TargetGroup: !GetAtt LoadBalancer.Outputs.TargetGroup
+        Repository: !Ref Repository
 
 Outputs:
-  CodeCommitRepoArn:
-    Description: Created Code Commit Repo Arn
-    Export:
-      Name: !Sub "${AppStackName}--CodeCommitRepoArn"
-    Value: !GetAtt CodeCommitRepo.Arn
-
-  CodeCommitRepoName:
-    Description: Created Code Commit Repo Name
-    Export:
-      Name: !Sub "${AppStackName}--CodeCommitRepoName"
-    Value: !GetAtt CodeCommitRepo.Name
 
   LoadBalancerUrl:
     Description: URL of the load balancer for the sample service.
