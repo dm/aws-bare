@@ -11,3 +11,4 @@ export NAME_SUFFIX=jdoe
 export PROFILE=default
 export PROJECT=appname
 export REGION=us-east-1
+export SUBDOMAIN=subdomain

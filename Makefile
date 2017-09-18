@@ -9,6 +9,7 @@ export NAME_SUFFIX ?= awsrig-test-bucket
 export PROFILE ?= default
 export PROJECT ?= projectname
 export REGION ?= us-east-1
+export SUBDOMAIN ?= subdomain
 
 export AWS_PROFILE=${PROFILE}
 export AWS_REGION=${REGION}
@@ -61,7 +62,8 @@ create-foundation: upload
 			"ParameterKey=Environment,ParameterValue=${ENV}" \
 			"ParameterKey=FoundationBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.foundation" \
 			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
-			"ParameterKey=PublicFQDN,ParameterValue=${DOMAIN}" \
+			"ParameterKey=PublicDomain,ParameterValue=${DOMAIN}" \
+			"ParameterKey=PublicFQDN,ParameterValue=${SUBDOMAIN}.${DOMAIN}" \
 			"ParameterKey=Region,ParameterValue=${REGION}" \
 			"ParameterKey=SubnetPrivateCidrBlocks,ParameterValue='10.1.11.0/24,10.1.12.0/24,10.1.13.0/24'" \
 			"ParameterKey=SubnetPublicCidrBlocks,ParameterValue='10.1.1.0/24,10.1.2.0/24,10.1.3.0/24'" \
@@ -128,7 +130,8 @@ update-foundation: upload
 			"ParameterKey=Environment,ParameterValue=${ENV}" \
 			"ParameterKey=FoundationBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.foundation" \
 			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
-			"ParameterKey=PublicFQDN,ParameterValue=${DOMAIN}" \
+			"ParameterKey=PublicDomain,ParameterValue=${DOMAIN}" \
+			"ParameterKey=PublicFQDN,ParameterValue=${SUBDOMAIN}.${DOMAIN}" \
 			"ParameterKey=Region,ParameterValue=${REGION}" \
 			"ParameterKey=SubnetPrivateCidrBlocks,ParameterValue='10.1.11.0/24,10.1.12.0/24,10.1.13.0/24'" \
 			"ParameterKey=SubnetPublicCidrBlocks,ParameterValue='10.1.1.0/24,10.1.2.0/24,10.1.3.0/24'" \
@@ -225,14 +228,22 @@ package-pipeline:
 ## Upload Pipeline Templates to S3
 # Uploads DevOps CD templates to the InfraDev bucket
 # awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipelines/
-upload-pipeline:
+upload-pipeline: upload-all-envs
 	@sh ./bin/build-configs.sh
 	@aws s3 cp config/${PROJECT}-${NAME_SUFFIX}-foundation.zip s3://awsrig.${PROJECT}.${NAME_SUFFIX}.infradev/pipeline/config/
+
 
 ## Upload CF Templates to S3
 # Uploads foundation templates to the Foundation bucket
 # awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/${ENV}/templates/
 upload:
+	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/${ENV}/templates/
+
+
+## Upload CF Templates to S3
+# Uploads foundation templates to the Foundation bucket
+# awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/${ENV}/templates/
+upload-all-envs:
 	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/dev/templates/
 	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/stg/templates/
 	@aws s3 cp --recursive aws/foundation/ s3://awsrig.${PROJECT}.${NAME_SUFFIX}.foundation/prd/templates/
@@ -298,6 +309,9 @@ ifndef PROJECT
 endif
 ifndef REGION
 	$(error REGION is undefined, should be in file .make)
+endif
+ifndef SUBDOMAIN
+	$(error SUBDOMAIN is undefined, should be in file .make)
 endif
 	@echo "All required ENV vars set"
 

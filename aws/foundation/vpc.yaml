@@ -47,7 +47,7 @@ Resources:
     Type: AWS::Route53::HostedZone
     Properties:
       HostedZoneConfig:
-        Comment: !Sub "${Environment} VPC Internal DNS"
+        Comment: !Sub "${FoundationStackName}, ${Environment} VPC Internal DNS"
       Name: internal
       VPCs:
         - VPCId:

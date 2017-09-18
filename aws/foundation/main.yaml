@@ -23,6 +23,10 @@ Parameters:
     Description: Project name
     Type: String
 
+  PublicDomain:
+    Description: Domain Name to create new NS subdomain entries
+    Type: String
+
   PublicFQDN:
     Description: Public Fully Qualified Domain Name
     Type: String
@@ -51,8 +55,8 @@ Resources:
         Environment: !Ref Environment
         FoundationStackName: !Sub ${AWS::StackName}
         Region: !Ref Region
-        SubnetPrivateCidrBlocks: !Join [ ",", !Ref SubnetPrivateCidrBlocks ]
-        SubnetPublicCidrBlocks: !Join [ ",", !Ref SubnetPublicCidrBlocks ]
+        SubnetPrivateCidrBlocks: !Join [ ',', !Ref SubnetPrivateCidrBlocks ]
+        SubnetPublicCidrBlocks: !Join [ ',', !Ref SubnetPublicCidrBlocks ]
       TemplateURL: !Sub https://s3.amazonaws.com/${FoundationBucket}/${Environment}/templates/vpc.yaml
       TimeoutInMinutes: 60
 
@@ -62,6 +66,7 @@ Resources:
       Parameters:
         Environment: !Ref Environment
         FoundationStackName: !Sub ${AWS::StackName}
+        PublicDomain: !Ref PublicDomain
         PublicFQDN: !Ref PublicFQDN
       TemplateURL: !Sub https://s3.amazonaws.com/${FoundationBucket}/${Environment}/templates/dns.yaml
       TimeoutInMinutes: 60
@@ -76,7 +81,6 @@ Resources:
         FoundationStackName: !Sub ${AWS::StackName}
       TemplateURL: !Sub https://s3.amazonaws.com/${FoundationBucket}/${Environment}/templates/nat.yaml
       TimeoutInMinutes: 60
-
 
 Outputs:
   FoundationVpcId:

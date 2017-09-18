@@ -38,7 +38,7 @@ and save in a new file `.make` or done interactively through `make .make`:
 
 ```
 APP = <Application name if you're doing more than Foundation stack>
-DOMAIN = <Domain to use for Foundation>
+DOMAIN = <Domain to use for Foundation and Apps>
 EMAIL = <User contact e-mail>
 ENV = <Environment i.e.: tst, dev, stg, prd>
 GITHUB_BRANCH = <Branch for pipeline>
@@ -50,6 +50,7 @@ NAME_SUFFIX = <Your unique FirstLast name>
 PROFILE = <AWS Profile Name>
 PROJECT = <Project Name>
 REGION = <AWS Region>
+SUBDOMAIN = <Subdomain to use for Foundation and Apps>
 ```
 
 Confirm environment vars are properly set with `make check-env`

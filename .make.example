@@ -11,3 +11,4 @@ NAME_SUFFIX = jdoe
 PROFILE = default
 PROJECT = appname
 REGION = us-east-1
+SUBDOMAIN = subdomain

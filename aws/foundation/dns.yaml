@@ -12,16 +12,31 @@ Parameters:
     Description: Foundation stack name
     Type: String
 
+  PublicDomain:
+    Description: Domain Name to create new NS subdomain entries
+    Type: String
+
   PublicFQDN:
     Description: Public Fully Qualified Domain Name
     Type: String
 
 Resources:
+  HostedZoneNS:
+    DependsOn:
+      - PublicDns
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !Sub "${PublicDomain}."
+      Name: !Sub "${PublicFQDN}."
+      ResourceRecords: !GetAtt PublicDns.NameServers
+      TTL: '900'
+      Type: NS
+
   PublicDns:
     Type: AWS::Route53::HostedZone
     Properties:
       HostedZoneConfig:
-        Comment: !Sub "${Environment} Public DNS"
+        Comment: !Sub "${FoundationStackName}, ${Environment} Public DNS"
       Name:
         Ref: PublicFQDN
 
@@ -32,6 +47,7 @@ Outputs:
       Name: !Sub "${FoundationStackName}--ZoneId"
     Value:
       Ref: PublicDns
+
   FQDN:
     Description: Fully Qualified Domain Name
     Export:
