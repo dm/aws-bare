@@ -14,6 +14,12 @@ export SUBDOMAIN ?= subdomain
 export AWS_PROFILE=${PROFILE}
 export AWS_REGION=${REGION}
 
+.CLEAR=\x1b[0m
+.BOLD=\x1b[01m
+.RED=\x1b[31;01m
+.GREEN=\x1b[32;01m
+.YELLOW=\x1b[33;01m
+
 
 ## Create dependency S3 buckets
 # Used for storage of Foundation configs, InfraDev storage and Build artifacts
@@ -212,6 +218,12 @@ delete-foundation:
 
 ## Deletes the App CF stack
 delete-app:
+	$(eval export ECR_REPO = $(shell echo "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}-ecr-repo" ) )
+	$(eval export ECR_COUNT = $(shell aws ecr list-images --repository-name "${ECR_REPO}" | jq -r '.imageIds | length | select (.!=0|0)'))
+	@if [[ "${ECR_COUNT}" != "0" ]]; then \
+		echo "${.RED}Can't delete ECS Repository '${ECR_REPO}', there are still ${ECR_COUNT} Docker images on it!${.CLEAR}"; \
+		echo "${.YELLOW}[Cancelled]${.CLEAR}" && exit 1 ; \
+	fi;
 	@if ${MAKE} .prompt-yesno message="Are you sure you wish to delete the App ${APP} Stack?"; then \
 		aws cloudformation delete-stack --region ${REGION} --stack-name "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}"; \
 	fi
@@ -324,12 +336,6 @@ help:
 		 /:/   { sub(/:.*/, "", $$0); printf "\033[34m%-30s\033[0m\033[1m%s\033[0m %s\n\n", $$0, doc_h, doc; skip=1 }' \
 		${MAKEFILE_LIST}
 
-
-.CLEAR=\x1b[0m
-.BOLD=\x1b[01m
-.RED=\x1b[31;01m
-.GREEN=\x1b[32;01m
-.YELLOW=\x1b[33;01m
 
 # Re-usable target for yes no prompt. Usage: make .prompt-yesno message="Is it yes or no?"
 # Will exit with error if not yes
