@@ -218,8 +218,8 @@ delete-foundation:
 
 ## Deletes the App CF stack
 delete-app:
-	$(eval export ECR_REPO = $(shell echo "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}-ecr-repo" ) )
-	$(eval export ECR_COUNT = $(shell aws ecr list-images --repository-name "${ECR_REPO}" | jq -r '.imageIds | length | select (.!=0|0)'))
+	$(eval export ECR_REPO=$(shell echo "${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}-ecr-repo"))
+	$(eval export ECR_COUNT=$(shell sh ./bin/can-delete-ecs.sh))
 	@if [[ "${ECR_COUNT}" != "0" ]]; then \
 		echo "${.RED}Can't delete ECS Repository '${ECR_REPO}', there are still ${ECR_COUNT} Docker images on it!${.CLEAR}"; \
 		echo "${.YELLOW}[Cancelled]${.CLEAR}" && exit 1 ; \
