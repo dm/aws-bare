@@ -144,6 +144,11 @@ Resources:
                   - s3:GetObjectVersion
                   - s3:GetBucketVersioning
               - Resource:
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${AppStackName}-*
+                Effect: Allow
+                Action:
+                  - ssm:GetParameters
+              - Resource:
                   - "*"
                 Effect: Allow
                 Action:

@@ -96,6 +96,7 @@ create-app: upload-app
 			"ParameterKey=PublicDomain,ParameterValue=${SUBDOMAIN}.${DOMAIN}" \
 			"ParameterKey=PublicFQDN,ParameterValue=${APP}.${SUBDOMAIN}.${DOMAIN}" \
 			"ParameterKey=Region,ParameterValue=${REGION}" \
+			"ParameterKey=SshKeyName,ParameterValue=${KEY_NAME}" \
 			"ParameterKey=UserName,ParameterValue=${NAME_SUFFIX}" \
 		--region ${REGION} \
 		--tags \

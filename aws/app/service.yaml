@@ -4,25 +4,32 @@ Description: Service definition
 AWSTemplateFormatVersion: 2010-09-09
 
 Parameters:
-  Tag:
-    Type: String
-    Default: latest
-
-  DesiredCount:
-    Type: Number
-    Default: 0
-
-  TargetGroup:
+  AppStackName:
     Type: String
 
   Cluster:
     Type: String
 
-  Repository:
-    Type: String
+  ContainerMemory:
+    Default: 256
+    Type: Number
 
   ContainerPort:
     Type: Number
+
+  DesiredCount:
+    Type: Number
+    Default: 0
+
+  Repository:
+    Type: String
+
+  Tag:
+    Type: String
+    Default: latest
+
+  TargetGroup:
+    Type: String
 
 Resources:
   ECSServiceRole:
@@ -52,10 +59,33 @@ Resources:
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref TargetGroup
 
+  TaskDefinitionServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument: |
+        {
+            "Statement": [{
+                "Effect": "Allow",
+                "Principal": { "Service": [ "ecs-tasks.amazonaws.com" ]},
+                "Action": [ "sts:AssumeRole" ]
+            }]
+        }
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${AppStackName}-*
+                Effect: Allow
+                Action:
+                  - ssm:GetParameters
+
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Family: !Sub ${AppStackName}-deployment
+      TaskRoleArn: !Ref TaskDefinitionServiceRole
       ContainerDefinitions:
         - Name: !Sub ${AppStackName}-deployment
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}:${Tag}

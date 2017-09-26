@@ -51,6 +51,8 @@ Parameters:
   SourceSecurityGroup:
     Type: AWS::EC2::SecurityGroup::Id
 
+  SshKeyName:
+    Type: AWS::EC2::KeyPair::KeyName
 
 Mappings:
   AWSRegionToAMI:
@@ -174,6 +176,7 @@ Resources:
       ImageId: !FindInMap [ AWSRegionToAMI, !Ref "AWS::Region", AMI ]
       InstanceType: !Ref InstanceType
       IamInstanceProfile: !Ref InstanceProfile
+      KeyName: !Ref SshKeyName
       SecurityGroups:
         - !Ref SecurityGroup
       UserData:

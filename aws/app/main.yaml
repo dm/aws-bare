@@ -45,6 +45,9 @@ Parameters:
     Description: Region
     Type: String
 
+  SshKeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+
   UserName:
     Description: User FirstLastName
     Type: String
@@ -76,6 +79,7 @@ Resources:
         AppStackName: !Ref AppStackName
         FoundationStackName: !Ref FoundationStackName
         SourceSecurityGroup: !GetAtt LoadBalancer.Outputs.SecurityGroup
+        SshKeyName: !Ref SshKeyName
 
   DeploymentPipeline:
     DependsOn:
