@@ -32,6 +32,14 @@ Parameters:
     Description: Project name
     Type: String
 
+  PublicDomain:
+    Description: Domain Name to create new NS subdomain entries
+    Type: String
+
+  PublicFQDN:
+    Description: Public Fully Qualified Domain Name
+    Type: String
+
   Region:
     Default: us-east-1
     Description: Region
@@ -46,7 +54,7 @@ Resources:
     Type: AWS::CodeCommit::Repository
     Properties:
       RepositoryName: !Join [ '-', [ !Ref ProjectName, !Ref UserName, !Ref AppName ] ]
-      RepositoryDescription: !Join [ ' ', [ 'Project repository for ', !Ref ProjectName ] ]
+      RepositoryDescription: !Sub "Project repository for ${ProjectName}"
 
   LoadBalancer:
     Type: AWS::CloudFormation::Stack
@@ -55,6 +63,8 @@ Resources:
       Parameters:
         AppStackName: !Ref AppStackName
         FoundationStackName: !Ref FoundationStackName
+        PublicDomain: !Ref PublicDomain
+        PublicFQDN: !Ref PublicFQDN
 
   Cluster:
     DependsOn:
@@ -75,10 +85,11 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/deployment-pipeline.yaml
       Parameters:
+        AppName: !Ref AppName
         AppStackName: !Ref AppStackName
         BuildArtifactsBucket: !Ref BuildArtifactsBucket
-        InfraDevBucket: !Ref InfraDevBucket
         Cluster: !GetAtt Cluster.Outputs.ClusterName
+        InfraDevBucket: !Ref InfraDevBucket
         RepositoryName: !GetAtt CodeCommitRepo.Name
         TargetGroup: !GetAtt LoadBalancer.Outputs.TargetGroup
 

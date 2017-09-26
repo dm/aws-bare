@@ -93,8 +93,10 @@ create-app: upload-app
 			"ParameterKey=FoundationStackName,ParameterValue=${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
 			"ParameterKey=InfraDevBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.infradev" \
 			"ParameterKey=ProjectName,ParameterValue=${PROJECT}" \
-			"ParameterKey=UserName,ParameterValue=${NAME_SUFFIX}" \
+			"ParameterKey=PublicDomain,ParameterValue=${SUBDOMAIN}.${DOMAIN}" \
+			"ParameterKey=PublicFQDN,ParameterValue=${APP}.${SUBDOMAIN}.${DOMAIN}" \
 			"ParameterKey=Region,ParameterValue=${REGION}" \
+			"ParameterKey=UserName,ParameterValue=${NAME_SUFFIX}" \
 		--region ${REGION} \
 		--tags \
 			"Key=Email,Value=${EMAIL}" \

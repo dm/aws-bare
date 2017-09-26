@@ -77,7 +77,6 @@ Mappings:
     us-west-2:
       AMI: ami-1d668865
 
-
 Resources:
   ECSRole:
     Type: AWS::IAM::Role
@@ -120,8 +119,8 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
-        - Fn::ImportValue: !Sub "${FoundationStackName}--SubnetPublicA"
-        - Fn::ImportValue: !Sub "${FoundationStackName}--SubnetPublicB"
+        - Fn::ImportValue: !Sub "${FoundationStackName}--SubnetPrivateA"
+        - Fn::ImportValue: !Sub "${FoundationStackName}--SubnetPrivateB"
       LaunchConfigurationName: !Ref LaunchConfiguration
       MinSize: !Ref ClusterSize
       MaxSize: !Ref ClusterMaxSize

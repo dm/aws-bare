@@ -48,42 +48,25 @@ Resources:
       DesiredCount: !Ref DesiredCount
       TaskDefinition: !Ref TaskDefinition
       LoadBalancers:
-        - ContainerName: app-deployment
+        - ContainerName: !Ref AppStackName
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref TargetGroup
 
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !Sub ${AWS::StackName}-app-deployment
+      Family: !Sub ${AppStackName}-deployment
       ContainerDefinitions:
-        - Name: app-deployment
+        - Name: !Sub ${AppStackName}-deployment
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}:${Tag}
-          EntryPoint:
-            - /usr/sbin/apache2
-            - -D
-            - FOREGROUND
+          Command:
+            - /bin/sh
+            - make run
           Essential: true
-          Memory: 128
-          MountPoints:
-            - SourceVolume: my-vol
-              ContainerPath: /var/www/my-vol
+          Memory: !Ref ContainerMemory
           PortMappings:
             - ContainerPort: !Ref ContainerPort
               HostPort: 0
           Environment:
             - Name: Tag
               Value: !Ref Tag
-        - Name: busybox
-          Image: busybox
-          EntryPoint:
-            - sh
-            - -c
-          Essential: false
-          Memory: 128
-          VolumesFrom:
-            - SourceContainer: app-deployment
-          Command:
-            - /bin/sh -c "while true; do /bin/date > /var/www/my-vol/date; sleep 1; done"
-      Volumes:
-        - Name: my-vol

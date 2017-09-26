@@ -12,12 +12,19 @@ Parameters:
     Description: Foundation stack name
     Type: String
 
+  PublicDomain:
+    Description: Domain Name to create new NS subdomain entries
+    Type: String
+
+  PublicFQDN:
+    Description: Public Fully Qualified Domain Name
+    Type: String
 
 Resources:
   SecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupDescription: !Sub ${AppStackName}--ALB
+      GroupDescription: !Sub "${AppStackName}--ALB"
       SecurityGroupIngress:
         - CidrIp: "0.0.0.0/0"
           IpProtocol: "TCP"
@@ -34,6 +41,19 @@ Resources:
         - Fn::ImportValue: !Sub "${FoundationStackName}--SubnetPublicB"
       SecurityGroups:
         - !Ref SecurityGroup
+
+  LoadBalancerDNS:
+    DependsOn: LoadBalancer
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: !Sub "${PublicDomain}."
+      Comment: DNS entry for LoadBalancer
+      RecordSets:
+      - Name: !Sub "${PublicFQDN}."
+        Type: A
+        AliasTarget:
+          HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+          DNSName: !GetAtt LoadBalancer.DNSName
 
   LoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -83,7 +103,7 @@ Outputs:
     Value: !Ref TargetGroup
 
   ServiceUrl:
-    Description: URL of the load balancer for the sample service.
+    Description: Elastic Load Balancer URL
     Value: !Sub http://${LoadBalancer.DNSName}
 
   SecurityGroup:

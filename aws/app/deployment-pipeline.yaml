@@ -4,6 +4,10 @@ Description: Deployment Pipeline
 AWSTemplateFormatVersion: 2010-09-09
 
 Parameters:
+  AppName:
+    Description: Application name
+    Type: String
+
   AppStackName:
     Type: String
 
@@ -31,7 +35,6 @@ Parameters:
 
   TargetGroup:
     Type: String
-
 
 Resources:
   Repository:
@@ -260,11 +263,13 @@ Resources:
                 RoleArn: !GetAtt CloudFormationExecutionRole.Arn
                 ParameterOverrides: !Sub |
                   {
-                    "Tag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] },
-                    "DesiredCount": "1",
+                    "AppName": "${AppName}",
+                    "AppStackName": "${AppStackName}",
                     "Cluster": "${Cluster}",
-                    "TargetGroup": "${TargetGroup}",
-                    "Repository": "${Repository}"
+                    "DesiredCount": "1",
+                    "Repository": "${Repository}",
+                    "Tag": { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] },
+                    "TargetGroup": "${TargetGroup}"
                   }
               InputArtifacts:
                 - Name: Template
