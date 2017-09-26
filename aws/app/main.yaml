@@ -45,6 +45,11 @@ Parameters:
     Description: Region
     Type: String
 
+  RepositoryBranch:
+    Default: master
+    Description: Branch to deploy in CD Pipeline
+    Type: String
+
   SshKeyName:
     Type: AWS::EC2::KeyPair::KeyName
 
@@ -95,6 +100,7 @@ Resources:
         Cluster: !GetAtt Cluster.Outputs.ClusterName
         InfraDevBucket: !Ref InfraDevBucket
         RepositoryName: !GetAtt CodeCommitRepo.Name
+        RepositoryBranch: !Ref RepositoryBranch
         TargetGroup: !GetAtt LoadBalancer.Outputs.TargetGroup
 
 Outputs:
