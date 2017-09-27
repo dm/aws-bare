@@ -20,6 +20,14 @@ Parameters:
   Cluster:
     Type: String
 
+  ContainerMemory:
+    Default: 256
+    Type: Number
+
+  ContainerPort:
+    Default: 8080
+    Type: Number
+
   RepositoryName:
     AllowedPattern: '[\x20-\x7E]*'
     ConstraintDescription: Can contain only ASCII characters.
@@ -271,6 +279,8 @@ Resources:
                     "AppName": "${AppName}",
                     "AppStackName": "${AppStackName}",
                     "Cluster": "${Cluster}",
+                    "ContainerMemory": "${ContainerMemory}",
+                    "ContainerPort": "${ContainerPort}",
                     "DesiredCount": "1",
                     "Repository": "${Repository}",
                     "Tag": { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] },

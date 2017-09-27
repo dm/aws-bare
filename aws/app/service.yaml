@@ -15,6 +15,7 @@ Parameters:
     Type: Number
 
   ContainerPort:
+    Default: 8080
     Type: Number
 
   DesiredCount:

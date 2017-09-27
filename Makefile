@@ -89,6 +89,8 @@ create-app: upload-app
 			"ParameterKey=AppName,ParameterValue=${APP}" \
 			"ParameterKey=AppStackName,ParameterValue=${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}" \
 			"ParameterKey=BuildArtifactsBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.build" \
+			"ParameterKey=ContainerMemory,ParameterValue=512" \
+			"ParameterKey=ContainerPort,ParameterValue=8080" \
 			"ParameterKey=Environment,ParameterValue=${ENV}" \
 			"ParameterKey=FoundationStackName,ParameterValue=${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
 			"ParameterKey=InfraDevBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.infradev" \
@@ -162,6 +164,8 @@ update-app: upload-app
 			"ParameterKey=AppName,ParameterValue=${APP}" \
 			"ParameterKey=AppStackName,ParameterValue=${PROJECT}-${ENV}-${NAME_SUFFIX}-app-${APP}" \
 			"ParameterKey=BuildArtifactsBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.build" \
+			"ParameterKey=ContainerMemory,ParameterValue=512" \
+			"ParameterKey=ContainerPort,ParameterValue=8080" \
 			"ParameterKey=Environment,ParameterValue=${ENV}" \
 			"ParameterKey=FoundationStackName,ParameterValue=${PROJECT}-${ENV}-${NAME_SUFFIX}-foundation" \
 			"ParameterKey=InfraDevBucket,ParameterValue=awsrig.${PROJECT}.${NAME_SUFFIX}.infradev" \

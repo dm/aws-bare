@@ -16,6 +16,14 @@ Parameters:
     Description: Build Artifacts S3 Bucket
     Type: String
 
+  ContainerMemory:
+    Default: 256
+    Type: Number
+
+  ContainerPort:
+    Default: 8080
+    Type: Number
+
   Environment:
     Description: Stack environment
     Type: String
@@ -98,6 +106,8 @@ Resources:
         AppStackName: !Ref AppStackName
         BuildArtifactsBucket: !Ref BuildArtifactsBucket
         Cluster: !GetAtt Cluster.Outputs.ClusterName
+        ContainerMemory: !Ref ContainerMemory
+        ContainerPort: !Ref ContainerPort
         InfraDevBucket: !Ref InfraDevBucket
         RepositoryName: !GetAtt CodeCommitRepo.Name
         RepositoryBranch: !Ref RepositoryBranch
