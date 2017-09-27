@@ -54,6 +54,9 @@ Resources:
 
   Service:
     Type: AWS::ECS::Service
+    DependsOn:
+      - TaskDefinition
+      - ECSServiceRole
     Properties:
       Cluster: !Ref Cluster
       Role: !Ref ECSServiceRole
@@ -87,6 +90,7 @@ Resources:
                   - ssm:GetParameters
 
   TaskDefinition:
+    DependsOn: TaskDefinitionServiceRole
     Type: AWS::ECS::TaskDefinition
     Properties:
       Family: !Sub ${AppStackName}-deployment
@@ -94,9 +98,6 @@ Resources:
       ContainerDefinitions:
         - Name: !Ref AppStackName
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}:${Tag}
-          Command:
-            - /bin/sh
-            - make run
           Essential: true
           Memory: !Ref ContainerMemory
           PortMappings:
