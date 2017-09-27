@@ -4,6 +4,10 @@ Description: Service definition
 AWSTemplateFormatVersion: 2010-09-09
 
 Parameters:
+  AppName:
+    Description: Application name
+    Type: String
+
   AppStackName:
     Type: String
 
@@ -88,7 +92,7 @@ Resources:
       Family: !Sub ${AppStackName}-deployment
       TaskRoleArn: !Ref TaskDefinitionServiceRole
       ContainerDefinitions:
-        - Name: !Sub ${AppStackName}-deployment
+        - Name: !Ref AppStackName
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}:${Tag}
           Command:
             - /bin/sh
