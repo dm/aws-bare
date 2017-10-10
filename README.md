@@ -38,6 +38,7 @@ and save in a new file `.make` or done interactively through `make .make`:
 
 ```
 APP = <Application name if you're doing more than Foundation stack>
+APP_BRANCH = <Git branch for application deployment in this environment>
 DOMAIN = <Domain to use for Foundation and Apps>
 EMAIL = <User contact e-mail>
 ENV = <Environment i.e.: tst, dev, stg, prd>

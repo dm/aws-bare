@@ -98,7 +98,7 @@ create-app: upload-app
 			"ParameterKey=PublicDomain,ParameterValue=${SUBDOMAIN}.${DOMAIN}" \
 			"ParameterKey=PublicFQDN,ParameterValue=${APP}.${SUBDOMAIN}.${DOMAIN}" \
 			"ParameterKey=Region,ParameterValue=${REGION}" \
-			"ParameterKey=RepositoryBranch,ParameterValue=master" \
+			"ParameterKey=RepositoryBranch,ParameterValue=${APP_BRANCH}" \
 			"ParameterKey=SshKeyName,ParameterValue=${KEY_NAME}" \
 			"ParameterKey=UserName,ParameterValue=${NAME_SUFFIX}" \
 		--region ${REGION} \
@@ -173,7 +173,7 @@ update-app: upload-app
 			"ParameterKey=PublicDomain,ParameterValue=${SUBDOMAIN}.${DOMAIN}" \
 			"ParameterKey=PublicFQDN,ParameterValue=${APP}.${SUBDOMAIN}.${DOMAIN}" \
 			"ParameterKey=Region,ParameterValue=${REGION}" \
-			"ParameterKey=RepositoryBranch,ParameterValue=master" \
+			"ParameterKey=RepositoryBranch,ParameterValue=${APP_BRANCH}" \
 			"ParameterKey=SshKeyName,ParameterValue=${KEY_NAME}" \
 			"ParameterKey=UserName,ParameterValue=${NAME_SUFFIX}" \
 		--region ${REGION} \
@@ -183,6 +183,7 @@ update-app: upload-app
 			"Key=Owner,Value=${NAME_SUFFIX}" \
 			"Key=ProjectName,Value=${PROJECT}-${ENV}-${NAME_SUFFIX}" \
 		--template-body "file://aws/app/main.yaml"
+
 
 ## Print Foundation stack's status
 status-foundation:

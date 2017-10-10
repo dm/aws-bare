@@ -1,4 +1,5 @@
 APP = appname
+APP_BRANCH = branchname
 DOMAIN = example.tld
 EMAIL = jdoe@example.com
 ENV = dev
