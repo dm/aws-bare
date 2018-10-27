@@ -28,6 +28,10 @@ Parameters:
     Description: Stack environment
     Type: String
 
+  EcsClusterSize:
+    Type: Number
+    Default: 1
+
   FoundationStackName:
     Description: Foundation stack name
     Type: String
@@ -65,6 +69,27 @@ Parameters:
     Description: User FirstLastName
     Type: String
 
+  PublicDomainName:
+    Description: Public Domain Name for sites and services created by this stack.
+    Type: String
+
+  BuildUserAccessKeySerial:
+    Description: Increment this value by one to rotate the build user key.
+    Type: Number
+    Default: 0
+
+  ParameterStoreNamespace:
+    Description: Namespace in parameter store from which configuration values will be taken.
+    Type: String
+
+  ServerRepository:
+    Description: Cluster repository name for bookit server
+    Type: String
+
+  WebRepository:
+    Description: Cluster repository name for bookit web
+    Type: String
+
 Resources:
   CodeCommitRepo:
     Type: AWS::CodeCommit::Repository
@@ -72,35 +97,35 @@ Resources:
       RepositoryName: !Join [ '-', [ !Ref ProjectName, !Ref UserName, !Ref AppName ] ]
       RepositoryDescription: !Sub "Project repository for ${ProjectName}"
 
-  LoadBalancer:
+  ServerLoadBalancer:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/load-balancer.yaml
+      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/templates/load-balancer.yaml
       Parameters:
-        AppStackName: !Ref AppStackName
+        AppStackName: !Sub ${AppStackName}-server
         FoundationStackName: !Ref FoundationStackName
         PublicDomain: !Ref PublicDomain
         PublicFQDN: !Ref PublicFQDN
 
   Cluster:
     DependsOn:
-      - LoadBalancer
+      - ServerLoadBalancer
+      - WebLoadBalancer
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/ecs-cluster.yaml
+      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/templates/ecs-cluster.yaml
       Parameters:
         AppStackName: !Ref AppStackName
         FoundationStackName: !Ref FoundationStackName
         SourceSecurityGroup: !GetAtt LoadBalancer.Outputs.SecurityGroup
         SshKeyName: !Ref SshKeyName
 
-  DeploymentPipeline:
+  BookitServerService:
     DependsOn:
       - Cluster
-      - LoadBalancer
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/${Environment}/templates/deployment-pipeline.yaml
+      TemplateURL: !Sub https://s3.amazonaws.com/${InfraDevBucket}/templates/service.yaml
       Parameters:
         AppName: !Ref AppName
         AppStackName: !Ref AppStackName
@@ -112,20 +137,14 @@ Resources:
         RepositoryName: !GetAtt CodeCommitRepo.Name
         RepositoryBranch: !Ref RepositoryBranch
         TargetGroup: !GetAtt LoadBalancer.Outputs.TargetGroup
+        Repository: !Ref Repository
 
 Outputs:
-  CodeCommitRepoArn:
-    Description: Created Code Commit Repo Arn
-    Export:
-      Name: !Sub "${AppStackName}--CodeCommitRepoArn"
-    Value: !GetAtt CodeCommitRepo.Arn
 
-  CodeCommitRepoName:
-    Description: Created Code Commit Repo Name
-    Export:
-      Name: !Sub "${AppStackName}--CodeCommitRepoName"
-    Value: !GetAtt CodeCommitRepo.Name
-
-  LoadBalancerUrl:
+  ServerLoadBalancerUrl:
     Description: URL of the load balancer for the sample service.
-    Value: !GetAtt LoadBalancer.Outputs.ServiceUrl
+    Value: !GetAtt ServerLoadBalancer.Outputs.ServiceUrl
+
+  WebLoadBalancerUrl:
+    Description: URL of the load balancer for the sample service.
+    Value: !GetAtt WebLoadBalancer.Outputs.ServiceUrl

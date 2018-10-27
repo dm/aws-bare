@@ -28,8 +28,8 @@ Resources:
       SecurityGroupIngress:
         - CidrIp: "0.0.0.0/0"
           IpProtocol: "TCP"
-          FromPort: 80
-          ToPort: 80
+          FromPort: 443
+          ToPort: 443
       VpcId:
         Fn::ImportValue: !Sub "${FoundationStackName}--VpcId"
 
@@ -59,8 +59,8 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       LoadBalancerArn: !Ref LoadBalancer
-      Port: 80
-      Protocol: HTTP
+      Port: 443
+      Protocol: HTTPS
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
@@ -71,7 +71,7 @@ Resources:
     Properties:
       VpcId:
         Fn::ImportValue: !Sub "${FoundationStackName}--VpcId"
-      Port: 80
+      Port: 8888
       Protocol: HTTP
       Matcher:
         HttpCode: 200-299,401,403
@@ -97,6 +97,17 @@ Resources:
         - TargetGroupArn: !Ref TargetGroup
           Type: forward
 
+  elbDNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: !Sub "${DnsHostedZoneName}."
+      Comment: DNS for ELB.
+      RecordSets:
+      - Name: !Sub "${DnsSubdomainName}.${DnsHostedZoneName}."
+        Type: A
+        AliasTarget:
+          HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+          DNSName: !GetAtt LoadBalancer.DNSName
 
 Outputs:
   TargetGroup:
